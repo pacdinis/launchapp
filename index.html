@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VelvetMed Launch">
+<meta name="theme-color" content="#0a1628">
+<title>VelvetMed Launch</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0a1628;font-family:'DM Sans',sans-serif}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,select,textarea{font-family:inherit;outline:none;border:none}
+
+:root{
+  --navy:#0a1628;
+  --navy2:#112040;
+  --navy3:#1a3060;
+  --accent:#c8a84b;
+  --accent2:#e8c870;
+  --teal:#0d9488;
+  --teal2:#14b8a6;
+  --white:#ffffff;
+  --grey:#8898aa;
+  --grey2:#c0cdd8;
+  --card:#ffffff0d;
+  --card-border:#ffffff18;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 8px 32px #00000040;
+  --tr:all 0.2s ease;
+}
+
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--navy);position:relative;overflow:hidden}
+#app::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 0%,#c8a84b22 0%,transparent 55%),radial-gradient(ellipse at 85% 100%,#0d948822 0%,transparent 55%);pointer-events:none;z-index:0}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;z-index:1}
+.screen.hidden{display:none}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 80px}
+.scroll-area::-webkit-scrollbar{width:3px}
+.scroll-area::-webkit-scrollbar-thumb{background:#ffffff22;border-radius:3px}
+
+/* TOP BAR */
+.top-bar{padding:max(env(safe-area-inset-top),12px) 16px 12px;display:flex;align-items:center;gap:12px;background:#0a1628ee;backdrop-filter:blur(16px);border-bottom:1px solid var(--card-border);flex-shrink:0;z-index:10}
+.top-bar .back{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;flex-shrink:0}
+.top-bar .titles{flex:1}
+.top-bar .title{font-family:'DM Serif Display',serif;font-size:17px;color:#fff}
+.top-bar .sub{font-size:11px;color:var(--grey);margin-top:1px}
+.top-bar .badge{background:var(--accent);color:var(--navy);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px}
+
+/* BOTTOM NAV */
+.bnav{display:flex;background:#0a1628f5;backdrop-filter:blur(16px);border-top:1px solid var(--card-border);padding:8px 0 max(env(safe-area-inset-bottom),8px);flex-shrink:0;z-index:10;position:absolute;bottom:0;left:0;right:0}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:var(--grey);transition:var(--tr)}
+.bni.active{color:var(--accent2)}
+.bni svg{width:22px;height:22px}
+.bni span{font-size:10px;font-weight:500}
+.bni-dot{width:4px;height:4px;border-radius:50%;background:var(--accent2);margin-top:1px;opacity:0;transition:var(--tr)}
+.bni.active .bni-dot{opacity:1}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;backdrop-filter:blur(8px)}
+.card+.card{margin-top:10px}
+.section-lbl{font-size:10px;font-weight:700;color:var(--grey);letter-spacing:1.2px;text-transform:uppercase;margin:20px 0 8px}
+
+/* FORM */
+.field{background:#ffffff09;border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:10px;transition:var(--tr)}
+.field:focus-within{border-color:var(--accent);background:#c8a84b10}
+.field label{display:block;font-size:10px;color:var(--grey);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;background:none;color:#fff;font-size:14px}
+.field select option{background:var(--navy2);color:#fff}
+.field textarea{resize:none;min-height:70px}
+.field input::placeholder,.field textarea::placeholder{color:#ffffff40}
+
+.toggle-group{display:flex;gap:8px;margin-bottom:10px}
+.tbtn{flex:1;padding:10px;border-radius:var(--radius-sm);background:#ffffff09;border:1.5px solid var(--card-border);color:var(--grey);font-size:13px;font-weight:500;transition:var(--tr);text-align:center}
+.tbtn.active{background:#c8a84b20;border-color:var(--accent);color:var(--accent2)}
+
+/* BUTTONS */
+.btn{width:100%;padding:14px;border-radius:var(--radius);font-size:15px;font-weight:600;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy)}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--card-border);color:#fff}
+.btn-danger{background:#e53e3e22;border:1px solid #e53e3e44;color:#fc8181}
+.btn+.btn{margin-top:10px}
+.btn:disabled{opacity:.4;pointer-events:none}
+
+/* GPS BADGE */
+.gps-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500}
+.gps-badge .dot{width:7px;height:7px;border-radius:50%;animation:pulse 2s infinite}
+.gps-badge.ok{background:#38a16920;color:#68d391;border:1px solid #38a16940}
+.gps-badge.ok .dot{background:#68d391}
+.gps-badge.warn{background:#dd6b2020;color:#fbd38d;border:1px solid #dd6b2040}
+.gps-badge.warn .dot{background:#fbd38d}
+.gps-badge.err{background:#e53e3e20;color:#fc8181;border:1px solid #e53e3e40}
+.gps-badge.err .dot{background:#fc8181}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* SEARCH */
+.search-box{display:flex;align-items:center;gap:10px;background:#ffffff0a;border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px}
+.search-box input{flex:1;background:none;color:#fff;font-size:14px}
+.search-box input::placeholder{color:var(--grey)}
+
+/* LIST ITEMS */
+.li{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);margin-bottom:8px;transition:var(--tr)}
+.li:active{background:#ffffff14}
+.li .li-info{flex:1;min-width:0}
+.li .li-name{font-size:14px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .li-sub{font-size:11px;color:var(--grey);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .li-arrow{color:var(--grey);flex-shrink:0}
+.li-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px}
+.li-icon.farm{background:#c8a84b20}
+.li-icon.dist{background:#0d948820}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#112040f5;backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:var(--radius);padding:12px 20px;font-size:13px;color:#fff;z-index:1000;transition:opacity .3s;opacity:0;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+#toast.success{border-color:#38a16950;color:#68d391}
+#toast.error{border-color:#e53e3e50;color:#fc8181}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:#00000088;backdrop-filter:blur(4px);z-index:500;display:flex;align-items:flex-end;transition:opacity .2s}
+.modal-ov.hidden{display:none}
+.modal{background:var(--navy2);border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--card-border);border-bottom:none;padding:20px 20px 44px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:#ffffff30;margin:0 auto 16px}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px;color:#fff;margin-bottom:16px}
+
+/* CHECKIN BOX */
+.ci-box{border-radius:var(--radius);padding:16px;margin-bottom:16px;border:1.5px solid}
+.ci-box.wait{border-color:#c8a84b44;background:#c8a84b0c}
+.ci-box.on{border-color:#0d948866;background:#0d948814}
+.ci-box.off{border-color:#e53e3e44;background:#e53e3e0c}
+.ci-box .ci-title{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+.ci-box.wait .ci-title{color:var(--accent2)}
+.ci-box.on .ci-title{color:var(--teal2)}
+.ci-box.off .ci-title{color:#fc8181}
+.ci-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.ci-lbl{font-size:11px;color:var(--grey)}
+.ci-val{font-size:12px;color:#fff;font-weight:500}
+
+/* ═══════════════════ PIN SCREEN ═══════════════════ */
+#sp{justify-content:center;align-items:center;padding:24px;background:var(--navy)}
+.pin-logo{text-align:center;margin-bottom:36px}
+.pin-logo .logo-mark{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#a06820);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 24px #c8a84b44}
+.pin-logo .brand{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;letter-spacing:2px}
+.pin-logo .tagline{font-size:11px;color:var(--grey);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase}
+.pin-launch{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:10px;font-weight:700;color:var(--navy);letter-spacing:1px;text-transform:uppercase}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:32px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #ffffff40;transition:var(--tr)}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent);transform:scale(1.15)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;margin:0 auto}
+.pkey{aspect-ratio:1;border-radius:50%;background:#ffffff08;border:1px solid var(--card-border);color:#fff;font-size:22px;font-weight:300;display:flex;align-items:center;justify-content:center;transition:var(--tr);font-family:'DM Serif Display',serif}
+.pkey:active{background:#ffffff18;transform:scale(.95)}
+.pkey.enter{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;color:var(--navy)}
+.pin-msg{font-size:13px;color:var(--grey);text-align:center;margin-bottom:24px;min-height:18px}
+.pin-update-btn{margin-top:18px;color:var(--grey);font-size:12px;padding:8px 14px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm)}
+
+/* ═══════════════════ HOME ═══════════════════ */
+.delegate-card{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:14px}
+.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;flex-shrink:0}
+.online-dot{width:9px;height:9px;border-radius:50%;background:#38a169;box-shadow:0 0 0 3px #38a16930}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px;text-align:center}
+.stat .sn{font-size:24px;font-weight:700;color:#fff;font-family:'DM Serif Display',serif}
+.stat .sl{font-size:9px;color:var(--grey);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+.mcard{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;transition:var(--tr)}
+.mcard:active{background:#ffffff12;transform:scale(.97)}
+.mcard .mi{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px}
+.mcard .ml{font-size:12px;font-weight:600;color:#fff}
+.mcard .ms{font-size:10px;color:var(--grey)}
+.mi.gold{background:#c8a84b25}
+.mi.teal{background:#0d948825}
+.mi.blue{background:#3b82c425}
+.mi.red{background:#e53e3e25}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ═══════════════════ VISIT ═══════════════════ */
+.products-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.pchip{padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;background:#ffffff09;border:2px solid var(--card-border);color:var(--grey);cursor:pointer;transition:var(--tr)}
+.pchip.selected{background:#c8a84b20;border-color:var(--accent);color:var(--accent2)}
+
+/* ═══════════════════ MAPA ═══════════════════ */
+#map-container{flex:1;position:relative}
+#map{width:100%;height:100%}
+.map-legend{position:absolute;bottom:16px;left:16px;right:16px;background:#0a1628ee;border:1px solid var(--card-border);border-radius:10px;padding:10px 14px;display:flex;gap:14px;font-size:11px;color:#fff;z-index:1000;align-items:center;flex-wrap:wrap}
+.leg-dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+.map-filter{position:absolute;top:12px;left:12px;z-index:1000;display:none;gap:6px;background:#0a1628ee;border:1px solid var(--card-border);border-radius:10px;padding:8px;backdrop-filter:blur(8px)}
+.map-filter button{padding:7px 10px;border-radius:7px;background:#ffffff12;border:1px solid var(--card-border);color:#fff;font-size:11px;font-weight:700}
+.map-filter button.active{background:var(--accent);color:var(--navy);border-color:var(--accent)}
+.farm-status-actions{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap}
+.farm-status-actions button{font-size:11px;padding:5px 7px;border-radius:6px;border:1px solid #ddd;background:#fff;color:#333;cursor:pointer}
+
+/* ═══════════════════ LOADING ═══════════════════ */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;height:200px;color:var(--grey);font-size:13px}
+.spinner{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff15;border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty{text-align:center;padding:48px 20px;color:var(--grey);font-size:13px}
+.empty .emoji{font-size:42px;margin-bottom:12px}
+
+/* SYNC BAR */
+.sync-bar{background:#c8a84b18;border-bottom:1px solid #c8a84b30;padding:6px 16px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--accent2);flex-shrink:0}
+.sync-bar.hidden{display:none}
+
+/* ACTIVE VISIT BANNER */
+.av-banner{background:#0d948820;border-bottom:1px solid #0d948840;padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--teal2);cursor:pointer}
+.av-banner.hidden{display:none}
+.blink{animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="toast"></div>
+<div class="modal-ov hidden" id="mov" onclick="closeModal()">
+  <div class="modal" id="mct" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="mbody"></div>
+  </div>
+</div>
+
+<!-- ═══ PIN ═══ -->
+<div class="screen" id="sp">
+  <div class="pin-logo">
+    <div class="logo-mark">💊</div>
+    <div class="brand">VELVET MED</div>
+    <div class="tagline">Field Force Angola</div>
+    <div class="pin-launch">LAUNCH EDITION</div>
+  </div>
+  <div id="pin-msg" class="pin-msg">Introduza o seu código de acesso</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+    <div class="pin-dot" id="pd4"></div>
+    <div class="pin-dot" id="pd5"></div>
+  </div>
+  <div class="pin-grid">
+    <button class="pkey" onclick="pp('1')">1</button>
+    <button class="pkey" onclick="pp('2')">2</button>
+    <button class="pkey" onclick="pp('3')">3</button>
+    <button class="pkey" onclick="pp('4')">4</button>
+    <button class="pkey" onclick="pp('5')">5</button>
+    <button class="pkey" onclick="pp('6')">6</button>
+    <button class="pkey" onclick="pp('7')">7</button>
+    <button class="pkey" onclick="pp('8')">8</button>
+    <button class="pkey" onclick="pp('9')">9</button>
+    <button class="pkey" onclick="pc()" style="font-size:13px;color:var(--grey)">Limpar</button>
+    <button class="pkey" onclick="pp('0')">0</button>
+    <button class="pkey" onclick="pd()" style="font-size:18px">⌫</button>
+  </div>
+  <button class="pin-update-btn" onclick="atualizarApp()">🔄 Atualizar App</button>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen hidden" id="sh">
+  <div class="top-bar">
+    <div class="titles" style="flex:1">
+      <div class="title">VelvetMed Launch</div>
+      <div class="sub" id="h-date"></div>
+    </div>
+    <button onclick="logout()" style="color:var(--grey);font-size:12px;padding:6px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:7px">Sair</button>
+  </div>
+  <div id="sync-bar" class="sync-bar hidden"><div class="dot" style="width:6px;height:6px;border-radius:50%;background:currentColor"></div><span id="sync-txt">A sincronizar...</span></div>
+  <div id="av-banner" class="av-banner hidden" onclick="resumeVisit()"><span class="blink">●</span><span id="av-txt">Visita em curso</span></div>
+  <div class="scroll-area">
+    <div style="margin-top:16px">
+      <div class="delegate-card">
+        <div class="avatar" id="h-av">VM</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600;color:#fff" id="h-name">Delegado</div>
+          <div style="font-size:11px;color:var(--grey)" id="h-zone">Luanda</div>
+        </div>
+        <div class="online-dot"></div>
+      </div>
+    </div>
+    <div class="section-lbl">Hoje</div>
+    <div class="stat-row">
+      <div class="stat"><div class="sn" id="s-vis">0</div><div class="sl">Visitas</div></div>
+      <div class="stat"><div class="sn" id="s-fly">0</div><div class="sl">Flyers</div></div>
+      <div class="stat"><div class="sn" id="s-pend">0</div><div class="sl">Pendentes</div></div>
+    </div>
+    <div class="section-lbl">Visitas</div>
+    <div class="menu-grid">
+      <button class="mcard" onclick="goVisit()">
+        <div class="mi gold">🏪</div><div class="ml">Visitar Farmácia</div><div class="ms">Check-in / Out</div>
+      </button>
+      <button class="mcard" onclick="goScreen('sm');initMapa()">
+        <div class="mi teal">🗺️</div><div class="ml">Mapa</div><div class="ms">Ver farmácias</div>
+      </button>
+    </div>
+    <div class="section-lbl">Envios</div>
+    <div class="menu-grid">
+      <button class="mcard" onclick="goScreen('sfl');loadFlyerScreen()">
+        <div class="mi blue">📄</div><div class="ml">Enviar Flyer</div><div class="ms">WhatsApp / Email</div>
+      </button>
+      <button class="mcard" onclick="goScreen('spd');loadPedidoScreen()">
+        <div class="mi gold">📦</div><div class="ml">Pedido Dist.</div><div class="ms">Enviar proposta</div>
+      </button>
+    </div>
+    <div class="section-lbl">Registos</div>
+    <div class="menu-grid">
+      <button class="mcard" onclick="goScreen('srf');initRegFarm()">
+        <div class="mi red">➕</div><div class="ml">Nova Farmácia</div><div class="ms">Registar</div>
+      </button>
+      <button class="mcard" onclick="reloadAllData(this)">
+        <div class="mi teal">🔄</div><div class="ml">Atualizar Dados</div><div class="ms">Farmácias, mapa...</div>
+      </button>
+    </div>
+    <div class="section-lbl">Histórico</div>
+    <div class="menu-grid">
+      <button class="mcard" onclick="goScreen('shist');loadHist()">
+        <div class="mi teal">📋</div><div class="ml">Histórico</div><div class="ms">Visitas recentes</div>
+      </button>
+      <button class="mcard" onclick="goScreen('sflhist');loadFlyerHist()">
+        <div class="mi blue">📊</div><div class="ml">Flyers Enviados</div><div class="ms">Registo</div>
+      </button>
+    </div>
+    <div style="text-align:center;padding:16px 0 4px;font-size:10px;color:var(--grey);letter-spacing:.5px">VelvetMed Launch · v2.1</div>
+    <div style="height:12px"></div>
+  </div>
+</div>
+
+<!-- ═══ VISIT SEARCH ═══ -->
+<div class="screen hidden" id="svs">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles"><div class="title">Visitar Farmácia</div><div class="sub">Selecione</div></div>
+    <button onclick="refreshFarms()" id="refresh-btn" style="padding:6px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:7px;font-size:12px;color:var(--grey)">🔄</button>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div class="search-box">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="vsinput" placeholder="Pesquisar farmácia..." oninput="filterFarms()">
+    </div>
+    <div id="vslist"></div>
+  </div>
+</div>
+
+<!-- ═══ VISIT FORM ═══ -->
+<div class="screen hidden" id="svf">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles" style="flex:1">
+      <div class="title" id="vf-name">Farmácia</div>
+      <div class="sub" id="vf-local"></div>
+    </div>
+    <button id="vf-nav-btn" onclick="navigateTo()" style="padding:6px 10px;background:var(--accent);color:var(--navy);border-radius:7px;font-size:11px;font-weight:700;display:none">🧭 Nav</button>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div class="ci-box wait" id="ci-box">
+      <div class="ci-title">📍 Localização</div>
+      <div class="ci-row"><span class="ci-lbl">Estado GPS</span><span id="ci-gps" class="gps-badge warn"><span class="dot"></span>A obter...</span></div>
+      <div class="ci-row"><span class="ci-lbl">Distância</span><span class="ci-val" id="ci-dist">--</span></div>
+    </div>
+    <button class="btn btn-gold" id="ci-btn" onclick="doCheckin()" disabled>▶ Check-in — Iniciar Visita</button>
+
+    <div id="vf-form" style="display:none">
+      <div class="section-lbl">Informação</div>
+      <div class="field"><label>Pessoa Entrevistada</label><input type="text" id="vf-pessoa" placeholder="Nome..."></div>
+      <div class="field"><label>Cargo</label><input type="text" id="vf-cargo" placeholder="Gerente, Técnico..."></div>
+
+      <div class="section-lbl">Produtos Apresentados</div>
+      <div class="products-chips" id="vf-prods"></div>
+
+      <div class="section-lbl">Distribuidores</div>
+      <div id="vf-dists-checks"></div>
+
+      <div class="section-lbl">Proposta / Proforma</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:12px;color:var(--grey);margin-bottom:6px">Pedido de proforma?</div>
+        <div class="toggle-group">
+          <button class="tbtn" id="pf-sim" onclick="setT('proforma','Sim')">Sim</button>
+          <button class="tbtn" id="pf-nao" onclick="setT('proforma','Não')">Não</button>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:12px;color:var(--grey);margin-bottom:6px">Gostou e vai adquirir?</div>
+        <div class="toggle-group">
+          <button class="tbtn" id="kp-sim" onclick="setT('conhece','Sim')">Sim</button>
+          <button class="tbtn" id="kp-nao" onclick="setT('conhece','Não')">Não</button>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:12px;color:var(--grey);margin-bottom:6px">Enviar flyer?</div>
+        <div class="toggle-group">
+          <button class="tbtn" id="fl-visit-sim" onclick="setT('enviar_flyer','Sim')">Sim</button>
+          <button class="tbtn" id="fl-visit-nao" onclick="setT('enviar_flyer','Não')">Não</button>
+        </div>
+      </div>
+
+      <div class="field"><label>Notas</label><textarea id="vf-notas" placeholder="Notas livres..."></textarea></div>
+      <div class="field"><label>Próxima Visita</label><input type="date" id="vf-prox" style="color-scheme:dark"></div>
+
+      <button class="btn btn-danger" onclick="doCheckout()" style="margin-bottom:24px">■ Check-out — Terminar Visita</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAPA ═══ -->
+<div class="screen hidden" id="sm">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles" style="flex:1"><div class="title">Mapa</div><div class="sub">Farmácias de Luanda</div></div>
+    <button onclick="navigateNearest()" style="padding:6px 10px;background:var(--accent);color:var(--navy);border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap">🧭 Mais Próxima</button>
+  </div>
+  <div id="map-container">
+    <div id="map"></div>
+    <div class="map-filter" id="map-filter">
+      <button id="mf-TODAS" onclick="setMapFilter('TODAS')">Todas</button>
+      <button id="mf-ATIVA" onclick="setMapFilter('ATIVA')">Ativas</button>
+      <button id="mf-FECHADA" onclick="setMapFilter('FECHADA')">Fechadas</button>
+    </div>
+    <div class="map-legend">
+      <span><span class="leg-dot" style="background:#e53e3e"></span>Não visitada</span>
+      <span><span class="leg-dot" style="background:#FFC107"></span>1-2x</span>
+      <span><span class="leg-dot" style="background:#38a169"></span>3+ x</span>
+      <span><span class="leg-dot" style="background:#3b82c4"></span>Eu</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FLYER ═══ -->
+<div class="screen hidden" id="sfl">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles"><div class="title">Enviar Flyer</div></div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div class="section-lbl">Farmácia Destinatária</div>
+    <div class="field"><label>Farmácia *</label><input type="text" id="fl-dest-name" placeholder="Pesquisar..." onclick="showFlyerDestSearch()" readonly><input type="hidden" id="fl-dest-id"></div>
+    <div class="field"><label>Telemóvel</label><input type="tel" id="fl-tlm" placeholder="9XXXXXXXX"></div>
+    <div class="field"><label>Email</label><input type="email" id="fl-email" placeholder="email@farmacia..."></div>
+
+    <div class="section-lbl">Produto</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1.5px solid var(--accent);border-radius:var(--radius-sm);margin-bottom:12px">
+      <div class="li-icon farm">💊</div>
+      <div><div style="font-size:14px;font-weight:600;color:#fff">Paludart</div><div style="font-size:11px;color:var(--grey)">20/120mg 24 Comp · 80/480mg 6 Comp</div></div>
+      <div style="margin-left:auto;font-size:18px;color:var(--accent2)">✓</div>
+    </div>
+
+    <div class="section-lbl">Método de Envio</div>
+    <div class="toggle-group">
+      <button class="tbtn active" id="fl-wts" onclick="setT('flyer-met','WhatsApp')">📱 WhatsApp</button>
+      <button class="tbtn" id="fl-eml" onclick="setT('flyer-met','Email')">📧 Email</button>
+    </div>
+    <div class="field"><label>Mensagem</label><textarea id="fl-msg" style="min-height:80px"></textarea></div>
+    <button class="btn btn-gold" id="fl-send-btn" onclick="sendFlyer()" disabled style="margin-bottom:24px">📤 Enviar Flyer</button>
+  </div>
+</div>
+
+<!-- ═══ PEDIDO DIST ═══ -->
+<div class="screen hidden" id="spd">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles"><div class="title">Pedido Distribuidor</div></div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div class="section-lbl">Distribuidores <span style="color:var(--grey);font-weight:400;font-size:10px">(pode selecionar vários)</span></div>
+    <div id="pd-dists"></div>
+
+    <div class="section-lbl">Farmácia</div>
+    <div class="field"><label>Farmácia *</label><input type="text" id="pd-farm-name" placeholder="Pesquisar..." onclick="showPdFarmSearch()" readonly><input type="hidden" id="pd-farm-id"></div>
+
+    <div class="section-lbl">Contacto da Farmácia <span style="color:var(--grey);font-weight:400;font-size:10px">(para o distribuidor enviar directamente)</span></div>
+    <div class="field"><label>Telemóvel</label><input type="tel" id="pd-farm-tlm" placeholder="9XXXXXXXX"></div>
+    <div class="field"><label>Email</label><input type="email" id="pd-farm-email" placeholder="email@farmacia..."></div>
+
+    <div class="section-lbl">Produtos e Quantidades</div>
+    <div id="pd-prods"></div>
+
+    <div class="section-lbl">Método de Envio ao Distribuidor</div>
+    <div class="toggle-group">
+      <button class="tbtn active" id="pd-wts" onclick="setT('pd-met','WhatsApp')">📱 WhatsApp</button>
+      <button class="tbtn" id="pd-eml" onclick="setT('pd-met','Email')">📧 Email</button>
+    </div>
+    <div class="field"><label>Mensagem</label><textarea id="pd-msg" style="min-height:110px"></textarea></div>
+    <button class="btn btn-gold" id="pd-send-btn" onclick="sendPedido()" disabled style="margin-bottom:24px">Enviar Pedido</button>
+  </div>
+</div>
+
+<!-- ═══ HIST ═══ -->
+<div class="screen hidden" id="shist">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles"><div class="title">Histórico</div><div class="sub">Visitas recentes</div></div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div id="hist-list"><div class="loading"><div class="spinner"></div><span>A carregar...</span></div></div>
+  </div>
+</div>
+
+<!-- ═══ FLYER HIST ═══ -->
+<div class="screen hidden" id="sflhist">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles"><div class="title">Flyers Enviados</div></div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div id="flhist-list"><div class="loading"><div class="spinner"></div><span>A carregar...</span></div></div>
+  </div>
+</div>
+
+<!-- ═══ REGISTAR FARMÁCIA ═══ -->
+<div class="screen hidden" id="srf">
+  <div class="top-bar">
+    <button class="back" onclick="goBack()">←</button>
+    <div class="titles"><div class="title">Nova Farmácia</div><div class="sub">Registar estabelecimento</div></div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div class="ci-box wait" id="rf-gps-box">
+      <div class="ci-title">📍 GPS</div>
+      <div class="ci-row"><span class="ci-lbl">Coordenadas</span><span id="rf-gps-val" class="gps-badge warn"><span class="dot"></span>A obter...</span></div>
+    </div>
+
+    <div class="section-lbl">Identificação</div>
+    <div class="field"><label>Nome da Farmácia *</label><input type="text" id="rf-nome" placeholder="FARMACIA..." style="text-transform:uppercase"></div>
+    <div class="field"><label>Local / Morada *</label><input type="text" id="rf-local" placeholder="Bairro, Rua..."></div>
+
+    <div class="section-lbl">Gerente</div>
+    <div class="field"><label>Nome do Gerente</label><input type="text" id="rf-gerente" placeholder="Nome..."></div>
+    <div class="field"><label>Telemóvel do Gerente</label><input type="tel" id="rf-tlm-gerente" placeholder="9XXXXXXXX"></div>
+    <div class="field"><label>Email do Gerente</label><input type="email" id="rf-email-gerente" placeholder="email@..."></div>
+
+    <div class="section-lbl">Responsável de Compras</div>
+    <div class="field"><label>Nome</label><input type="text" id="rf-resp-compras" placeholder="Nome..."></div>
+    <div class="field"><label>Telemóvel</label><input type="tel" id="rf-tlm-compras" placeholder="9XXXXXXXX"></div>
+    <div class="field"><label>Email</label><input type="email" id="rf-email-compras" placeholder="email@..."></div>
+
+    <div class="section-lbl">Notas</div>
+    <div class="field"><label>Observações</label><textarea id="rf-notas" placeholder="Informações adicionais..."></textarea></div>
+
+    <button class="btn btn-gold" onclick="saveNovaFarmacia()" style="margin-bottom:24px">💾 Guardar Farmácia</button>
+  </div>
+</div>
+
+</div><!-- end app -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzv4NngaL7D7Es4SPNItgTXuDfsg1_g-jNCRrK0RajSn41kgU-EEhQOwsl7t_hUSiidXA/exec';
+const CFG = {
+  SESSION_KEY: 'vm_launch_session',
+  OFFLINE_KEY: 'vm_launch_queue',
+  FARMS_KEY: 'vm_launch_farms',
+  PIN_ATTEMPTS: 'vm_launch_attempts',
+  VISIT_KEY: 'vm_launch_visit',
+  GEOFENCE: 50,
+  FLYER_DRIVE_ID: '159b9Cx2KnF6zoYiAEUughhYtv9VCPf-0',
+  PRODUCTS: [
+    {id:'P001', name:'Paludart 20/120mg 24 Comp', sku:'SKU-001'},
+    {id:'P002', name:'Paludart 80/480mg 6 Comp',  sku:'SKU-002'},
+  ],
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let S = {
+  delegate: null,
+  pin: '',
+  screen: 'sp',
+  history: [],
+  gps: null,
+  gpsWatcher: null,
+  farms: [],
+  dists: [],
+  visit: null,
+  toggles: {},
+  selectedFarm: null,
+  selectedDist: null,
+  selectedProds: [],
+  pdSelectedDist: null,
+  pdSelectedDists: new Set(),
+  pdSelectedFarm: null,
+  pdSelectedProds: [],
+  flyerSelectedFarm: null,
+  flyerSelectedProd: null,
+  isOnline: navigator.onLine,
+  isSyncing: false,
+  map: null,
+  mapMarkers: [],
+  visitCounts: {},
+  mapFilter: 'ATIVA',
+};
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('online', () => { S.isOnline=true; syncQueue(); });
+  window.addEventListener('offline', () => { S.isOnline=false; });
+  document.addEventListener('visibilitychange', () => { if(!document.hidden && S.isOnline) syncQueue(); });
+  checkSession();
+});
+
+function checkSession() {
+  try {
+    const sess = JSON.parse(localStorage.getItem(CFG.SESSION_KEY));
+    if(sess && sess.delegate && sess.date === new Date().toDateString()) {
+      S.delegate = sess.delegate;
+      initHome();
+      goScreen('sh');
+      return;
+    }
+  } catch(e) {}
+  goScreen('sp');
+}
+
+function saveSession() {
+  localStorage.setItem(CFG.SESSION_KEY, JSON.stringify({delegate:S.delegate, date:new Date().toDateString()}));
+}
+
+function logout() {
+  if(getQueue().length > 0) { showToast('⚠️ Tem registos por sincronizar!','error'); return; }
+  localStorage.removeItem(CFG.SESSION_KEY);
+  S.delegate = null; S.visit = null;
+  goScreen('sp');
+  showToast('Sessão terminada');
+}
+
+// ═══════════════════════════════════════════════════
+// PIN
+// ═══════════════════════════════════════════════════
+function pp(n) {
+  if(S.pin.length >= 6) return;
+  S.pin += n;
+  updatePinDots();
+  if(S.pin.length >= 6) setTimeout(()=>tryPin(), 300);
+}
+function pd() { S.pin=S.pin.slice(0,-1); updatePinDots(); }
+function pc() { S.pin=''; updatePinDots(); }
+function updatePinDots() {
+  for(let i=0;i<6;i++) {
+    const d=document.getElementById('pd'+i);
+    if(d) d.classList.toggle('filled', i<S.pin.length);
+  }
+}
+
+async function tryPin() {
+  if(S.pin.length < 6) return;
+  const attempts = parseInt(localStorage.getItem(CFG.PIN_ATTEMPTS)||'0');
+  if(attempts >= 5) { showToast('Demasiadas tentativas. Contacte o gestor.','error'); pc(); return; }
+  const pin = S.pin; pc();
+  const delegate = await getDelegate(pin);
+  if(!delegate) {
+    localStorage.setItem(CFG.PIN_ATTEMPTS, attempts+1);
+    document.getElementById('pin-msg').textContent = `PIN inválido. Tentativa ${attempts+1}/5`;
+    const d = document.getElementById('pin-dots');
+    d.style.animation='none'; d.offsetHeight; d.style.animation='shake .4s ease';
+    return;
+  }
+  if((delegate.ativo||'').toString().toLowerCase() !== 'sim') { showToast('Conta inativa.','error'); return; }
+  localStorage.removeItem(CFG.PIN_ATTEMPTS);
+  S.delegate = delegate;
+  saveSession();
+  initHome();
+  goScreen('sh');
+  showToast(`Bem-vindo, ${delegate.nome.split(' ')[0]}! 👋`);
+}
+
+async function getDelegate(pin) {
+  if(S.isOnline) {
+    try {
+      const r = await apiGet('getDelegate', {pin});
+      if(r && r.delegate) {
+        // cache
+        const c = JSON.parse(localStorage.getItem('vm_launch_delegates')||'[]');
+        const i = c.findIndex(d=>d.id_delegado===r.delegate.id_delegado);
+        if(i>=0) c[i]=r.delegate; else c.push(r.delegate);
+        localStorage.setItem('vm_launch_delegates', JSON.stringify(c));
+        return r.delegate;
+      }
+    } catch(e) {}
+  }
+  try {
+    const c = JSON.parse(localStorage.getItem('vm_launch_delegates')||'[]');
+    return c.find(d=>d.pin&&d.pin.toString()===pin.toString()&&(d.ativo||'').toLowerCase()==='sim')||null;
+  } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════
+function initHome() {
+  const d = S.delegate;
+  const name = d.nome||'Delegado';
+  const ini = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('h-av').textContent = ini;
+  document.getElementById('h-name').textContent = name;
+  document.getElementById('h-zone').textContent = d.zona||'Luanda';
+  document.getElementById('h-date').textContent = new Date().toLocaleDateString('pt-AO',{weekday:'long',day:'numeric',month:'long'});
+  checkVisitBanner();
+  updateStats();
+  updateSyncBar();
+  startGPS();
+  loadFarms();
+  loadDists();
+  loadRemoteConfig();
+  // Clear weekly recent-visit cache on Mondays
+  const recentKey=`vm_launch_recent_${S.delegate.id_delegado}`;
+  const weekKey=`vm_launch_week_${S.delegate.id_delegado}`;
+  const thisWeek=getWeekNumber();
+  if(localStorage.getItem(weekKey)!==thisWeek) { localStorage.removeItem(recentKey); localStorage.setItem(weekKey,thisWeek); }
+}
+
+function checkVisitBanner() {
+  const v = JSON.parse(localStorage.getItem(CFG.VISIT_KEY)||'null');
+  const banner = document.getElementById('av-banner');
+  if(v && S.delegate && v.delegateId === S.delegate.id_delegado) {
+    S.visit = v;
+    document.getElementById('av-txt').textContent = `Visita em curso: ${v.farmName}`;
+    banner.classList.remove('hidden');
+  } else {
+    S.visit = null; banner.classList.add('hidden');
+  }
+}
+
+function resumeVisit() {
+  if(!S.visit) return;
+  const f = S.farms.find(x=>x.ID===S.visit.farmId)||{ID:S.visit.farmId,nome:S.visit.farmName,local:'',lat:'',lon:''};
+  selectFarm(f.ID, f.nome, f.local||'', f.lat||'', f.lon||'');
+}
+
+async function updateStats() {
+  const today = new Date().toDateString();
+  const todayPt = new Date().toLocaleDateString('pt-PT');
+  const vk = `vm_launch_visits_${S.delegate?.id_delegado}_${today}`;
+  const fk = `vm_launch_flyers_${S.delegate?.id_delegado}_${today}`;
+
+  // Show local counts immediately
+  document.getElementById('s-vis').textContent = localStorage.getItem(vk)||'0';
+  document.getElementById('s-fly').textContent = localStorage.getItem(fk)||'0';
+  document.getElementById('s-pend').textContent = getQueue().length;
+
+  // Then fetch from server and update if online
+  if(S.isOnline && S.delegate) {
+    try {
+      const r = await apiGet('getData',{type:'stats_hoje', id_delegado:S.delegate.id_delegado, data:todayPt});
+      if(r && r.data) {
+        const sv = r.data.visitas||0;
+        const sf = r.data.flyers||0;
+        // Update local cache with server values (take max to avoid regression)
+        const localV = parseInt(localStorage.getItem(vk)||'0');
+        const localF = parseInt(localStorage.getItem(fk)||'0');
+        if(sv > localV) localStorage.setItem(vk, sv.toString());
+        if(sf > localF) localStorage.setItem(fk, sf.toString());
+        document.getElementById('s-vis').textContent = Math.max(sv,localV);
+        document.getElementById('s-fly').textContent = Math.max(sf,localF);
+      }
+    } catch(e) {}
+  }
+}
+
+function updateSyncBar() {
+  const bar = document.getElementById('sync-bar');
+  const q = getQueue().length;
+  if(q>0) { bar.classList.remove('hidden'); document.getElementById('sync-txt').textContent=`${q} registo(s) por sincronizar`; }
+  else if(S.isSyncing) { bar.classList.remove('hidden'); document.getElementById('sync-txt').textContent='A sincronizar...'; }
+  else { bar.classList.add('hidden'); }
+}
+
+// ═══════════════════════════════════════════════════
+// GPS
+// ═══════════════════════════════════════════════════
+function startGPS() {
+  if(!navigator.geolocation) return;
+  if(S.gpsWatcher) navigator.geolocation.clearWatch(S.gpsWatcher);
+  S.gpsWatcher = navigator.geolocation.watchPosition(
+    pos => { S.gps={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:pos.coords.accuracy}; updateCIBox(); },
+    () => { S.gps=null; updateCIBox(); },
+    {enableHighAccuracy:true,maximumAge:15000,timeout:20000}
+  );
+}
+
+function haversine(la1,lo1,la2,lo2) {
+  const R=6371000, p1=la1*Math.PI/180, p2=la2*Math.PI/180;
+  const dp=(la2-la1)*Math.PI/180, dl=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function updateCIBox() {
+  if(S.screen!=='svf') return;
+  const farm = S.selectedFarm;
+  const gpsEl = document.getElementById('ci-gps');
+  const distEl = document.getElementById('ci-dist');
+  const btn = document.getElementById('ci-btn');
+  const box = document.getElementById('ci-box');
+  if(!gpsEl) return;
+  if(!S.gps) {
+    gpsEl.className='gps-badge err'; gpsEl.innerHTML='<span class="dot"></span>Sem GPS';
+    distEl.textContent='--'; if(btn&&!S.visit) btn.disabled=true; return;
+  }
+  gpsEl.className='gps-badge ok'; gpsEl.innerHTML=`<span class="dot"></span>GPS ±${Math.round(S.gps.acc)}m`;
+  if(farm && farm.lat && farm.lon) {
+    const dist=Math.round(haversine(S.gps.lat,S.gps.lon,parseFloat(farm.lat),parseFloat(farm.lon)));
+    const ok = dist<=CFG.GEOFENCE;
+    distEl.textContent=`${dist}m ${ok?'✓':'✗'}`; distEl.style.color=ok?'#68d391':'#fc8181';
+    box.className=`ci-box ${ok?'on':'off'}`;
+    if(btn&&!S.visit) { btn.disabled=!ok; btn.textContent=ok?'▶ Check-in — Iniciar Visita':`⚠️ Fora do raio (${dist}m)`; }
+  } else {
+    distEl.textContent='Sem coord.'; if(btn&&!S.visit) { btn.disabled=false; btn.textContent='▶ Check-in'; }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+async function loadFarms() {
+  if(S.isOnline) {
+    try {
+      const r = await apiGet('getData',{type:'farmacias', admin:S.delegate?.admin||'Não'});
+      if(r&&r.data) { S.farms=r.data; localStorage.setItem(CFG.FARMS_KEY,JSON.stringify(r.data)); }
+    } catch(e) { tryLoadCached(); }
+  } else { tryLoadCached(); }
+}
+function tryLoadCached() { try { const c=localStorage.getItem(CFG.FARMS_KEY); if(c) S.farms=JSON.parse(c); } catch(e) {} }
+
+async function loadDists() {
+  if(S.isOnline) {
+    try {
+      const r = await apiGet('getData',{type:'distribuidores'});
+      if(r&&r.data) S.dists=r.data;
+    } catch(e) {}
+  }
+  if(S.dists.length===0) {
+    S.dists = [{ID:'W001',nome:'Gulbab',email:'gulbab@groupmak.org',tlm:'931359172'},{ID:'W002',nome:'Laborex',email:'',tlm:''},{ID:'W003',nome:'Mia Farma',email:'',tlm:''}];
+  }
+}
+
+async function loadRemoteConfig() {
+  if(!S.isOnline) return;
+  try {
+    const r = await apiGet('getConfig');
+    if(r&&r.config) {
+      if(r.config.RAIO_GEOFENCING_METROS) CFG.GEOFENCE=parseInt(r.config.RAIO_GEOFENCING_METROS);
+      if(r.config.MENSAGEM_FLYER_FARMACIA) CFG.FLYER_MSG=r.config.MENSAGEM_FLYER_FARMACIA;
+      if(r.config.APP_FLYER_P001) CFG.PRODUCTS[0].flyer=r.config.APP_FLYER_P001;
+      if(r.config.APP_FLYER_P002) CFG.PRODUCTS[1].flyer=r.config.APP_FLYER_P002;
+    }
+  } catch(e) {}
+}
+
+// Load visit counts for map
+async function loadVisitCounts() {
+  if(!S.isOnline) return;
+  try {
+    const r = await apiGet('getData',{type:'visit_counts',id_delegado:S.delegate.id_delegado});
+    if(r&&r.data) S.visitCounts=r.data;
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// VISIT SEARCH
+// ═══════════════════════════════════════════════════
+function goVisit() { goScreen('svs'); setTimeout(()=>filterFarms(),100); }
+
+async function reloadAllData(btn) {
+  if(btn) { btn.querySelector('.ms').textContent='A carregar...'; btn.disabled=true; }
+  S.farms=[]; localStorage.removeItem(CFG.FARMS_KEY);
+  S.dists=[]; S.visitCounts={};
+  await Promise.all([loadFarms(), loadDists(), loadVisitCounts()]);
+  updateStats();
+  if(S.map) renderMap();
+  if(btn) { btn.querySelector('.ms').textContent='Farmácias, mapa...'; btn.disabled=false; }
+  showToast(`✓ Dados actualizados — ${S.farms.length} farmácias`);
+}
+
+async function refreshFarms() {
+  const btn=document.getElementById('refresh-btn');
+  if(btn) { btn.textContent='⏳'; btn.disabled=true; }
+  S.farms=[];
+  localStorage.removeItem(CFG.FARMS_KEY);
+  await loadFarms();
+  filterFarms();
+  if(btn) { btn.textContent='🔄'; btn.disabled=false; }
+  showToast(`✓ ${S.farms.length} farmácias carregadas`);
+}
+
+function filterFarms() {
+  const q = (document.getElementById('vsinput')?.value||'').toLowerCase().trim();
+  const el = document.getElementById('vslist');
+  if(!el) return;
+  if(S.farms.length===0) {
+    el.innerHTML='<div class="loading"><div class="spinner"></div><span>A carregar dados...</span></div>';
+    loadFarms().then(()=>filterFarms()); return;
+  }
+  const items = q.length<2 ? S.farms.slice(0,40) : S.farms.filter(f=>(f.nome||'').toLowerCase().includes(q)||(f.local||'').toLowerCase().includes(q)).slice(0,40);
+  if(!items.length) { el.innerHTML='<div class="empty"><div class="emoji">🔍</div>Sem resultados</div>'; return; }
+  el.innerHTML = items.map(f=>`
+    <div class="li" onclick="selectFarm('${esc(f.ID)}','${esc(f.nome)}','${esc(f.local)}','${f.lat||''}','${f.lon||''}')">
+      <div class="li-icon farm">🏪</div>
+      <div class="li-info"><div class="li-name">${f.nome}</div><div class="li-sub">${f.local||''}</div></div>
+      <div class="li-arrow">›</div>
+    </div>`).join('');
+}
+
+function selectFarm(id, nome, local, lat, lon) {
+  S.selectedFarm = {id,nome,local,lat,lon};
+  document.getElementById('vf-name').textContent = nome;
+  document.getElementById('vf-local').textContent = local;
+  const navBtn = document.getElementById('vf-nav-btn');
+  if(lat&&lon&&navBtn) navBtn.style.display='';
+  goScreen('svf');
+  // check if resuming visit
+  const v = JSON.parse(localStorage.getItem(CFG.VISIT_KEY)||'null');
+  if(v && S.delegate && v.delegateId===S.delegate.id_delegado && v.farmId===id) {
+    S.visit = v;
+    showVisitForm(true);
+  } else {
+    document.getElementById('vf-form').style.display='none';
+    document.getElementById('ci-btn').style.display='';
+    document.getElementById('ci-box').className='ci-box wait';
+    updateCIBox();
+  }
+  const ivl=setInterval(()=>{ if(S.screen!=='svf'){clearInterval(ivl);return;} updateCIBox(); },3000);
+}
+
+function navigateTo() {
+  const f = S.selectedFarm;
+  if(!f||!f.lat||!f.lon) return;
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lon}`,'_blank');
+}
+
+// ═══════════════════════════════════════════════════
+// CHECKIN / CHECKOUT
+// ═══════════════════════════════════════════════════
+function showVisitForm(resuming=false) {
+  document.getElementById('ci-btn').style.display='none';
+  const box = document.getElementById('ci-box');
+  box.className='ci-box on';
+  const t = S.visit?.checkinTime||'--';
+  box.querySelector('.ci-title').textContent=`✓ Check-in: ${t}`;
+  document.getElementById('vf-form').style.display='';
+  // Render products
+  document.getElementById('vf-prods').innerHTML = CFG.PRODUCTS.map(p=>`
+    <div class="pchip ${(S.visit?.prods||[]).includes(p.id)?'selected':''}" onclick="toggleProd('${p.id}',this)">${p.name}</div>`).join('');
+  // Render distributors checkboxes
+  document.getElementById('vf-dists-checks').innerHTML = `
+    <div style="font-size:12px;color:var(--grey);margin-bottom:8px">Distribuidores da farmácia:</div>
+    ${S.dists.map(d=>`<label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer">
+      <input type="checkbox" id="dist-${d.ID}" style="width:18px;height:18px;accent-color:var(--accent)">
+      <span style="color:#fff;font-size:13px">${d.nome}</span></label>`).join('')}`;
+}
+
+function toggleProd(id, el) {
+  el.classList.toggle('selected');
+  if(!S.visit) S.visit = S.visit||{};
+  S.visit.prods = [...document.querySelectorAll('.pchip.selected')].map(c=>CFG.PRODUCTS[CFG.PRODUCTS.findIndex(p=>c.textContent===p.name)]?.id).filter(Boolean);
+}
+
+function doCheckin() {
+  if(!S.gps) { showToast('GPS não disponível. Aguarde...','error'); return; }
+  const now = new Date();
+  const t = now.toTimeString().slice(0,5);
+  S.visit = {
+    delegateId: S.delegate.id_delegado,
+    farmId: S.selectedFarm.id,
+    farmName: S.selectedFarm.nome,
+    farmLat: S.selectedFarm.lat,
+    farmLon: S.selectedFarm.lon,
+    checkinTime: t,
+    checkinLat: S.gps.lat,
+    checkinLon: S.gps.lon,
+    checkinTs: now.toISOString(),
+    visitId: 'VF_'+Date.now(),
+    prods: [],
+  };
+  localStorage.setItem(CFG.VISIT_KEY, JSON.stringify(S.visit));
+  document.getElementById('av-txt').textContent=`Visita em curso: ${S.selectedFarm.nome}`;
+  document.getElementById('av-banner').classList.remove('hidden');
+  showVisitForm(false);
+  showToast(`✓ Check-in: ${t}`);
+}
+
+function doCheckout() {
+  if(!S.visit) return;
+  // Geofence checkout
+  if(S.visit.farmLat && S.visit.farmLon && S.gps) {
+    const tLat=parseFloat(S.visit.farmLat), tLon=parseFloat(S.visit.farmLon);
+    if(!isNaN(tLat)&&!isNaN(tLon)&&tLat!==0&&tLon!==0) {
+      const dist=Math.round(haversine(S.gps.lat,S.gps.lon,tLat,tLon));
+      if(dist>CFG.GEOFENCE) { showToast(`⚠️ A ${dist}m. Aproxime-se para checkout.`,'error'); return; }
+    }
+  }
+  const now = new Date();
+  const t = now.toTimeString().slice(0,5);
+  // Capture duration NOW before anything is cleared
+  const checkinTs = new Date(S.visit.checkinTs);
+  const dur = Math.max(0, Math.round((now - checkinTs) / 60000));
+  const prods = [...document.querySelectorAll('.pchip.selected')].map(el=>el.textContent).join(', ');
+  const dists = [...document.querySelectorAll('[id^="dist-"]:checked')].map(cb=>cb.id.replace('dist-','')).map(id=>S.dists.find(d=>d.ID===id)?.nome).filter(Boolean).join(', ');
+
+  const rec = {
+    type:'visit_farm',
+    id_visita: S.visit.visitId,
+    id_farmacia: S.visit.farmId,
+    nome_farmacia: S.visit.farmName,
+    id_delegado: S.delegate.id_delegado,
+    nome_delegado: S.delegate.nome,
+    data: now.toLocaleDateString('pt-PT'),
+    hora_checkin: S.visit.checkinTime,
+    lat_checkin: S.visit.checkinLat||'',
+    lon_checkin: S.visit.checkinLon||'',
+    hora_checkout: t,
+    lat_checkout: S.gps?.lat||'',
+    lon_checkout: S.gps?.lon||'',
+    duracao_minutos: dur,
+    dist_metros: '',
+    gps_valido: S.visit.checkinLat ? 'Sim' : 'Não',
+    pessoa_entrevistada: document.getElementById('vf-pessoa')?.value||'',
+    cargo: document.getElementById('vf-cargo')?.value||'',
+    distribuidores_preferenciais: dists,
+    proforma_pedida: S.toggles['proforma']||'Não',
+    flyers_enviados: S.toggles['enviar_flyer']||'Não',
+    vai_adquirir: S.toggles['conhece']||'',
+    notas: document.getElementById('vf-notas')?.value||'',
+    proxima_visita_data: document.getElementById('vf-prox')?.value||'',
+    timestamp: now.toISOString(),
+  };
+  saveRecord(rec);
+  const today=new Date().toDateString();
+  const vk=`vm_launch_visits_${S.delegate.id_delegado}_${today}`;
+  localStorage.setItem(vk,(parseInt(localStorage.getItem(vk)||'0')+1).toString());
+  // Track recently visited farms with timestamp for map nearest-unvisited (3-day window)
+  const recentDatesKey=`vm_launch_recent_dates_${S.delegate.id_delegado}`;
+  try {
+    const recentDates=JSON.parse(localStorage.getItem(recentDatesKey)||'{}');
+    recentDates[rec.id_farmacia]=Date.now();
+    localStorage.setItem(recentDatesKey,JSON.stringify(recentDates));
+  } catch(e) {}
+  localStorage.removeItem(CFG.VISIT_KEY);
+
+  const proforma = S.toggles['proforma'];
+  const enviarFlyer = S.toggles['enviar_flyer'];
+  const farmData = S.farms.find(f=>f.ID===S.visit.farmId)||{};
+  const farmForPd = {
+    id: S.visit.farmId,
+    nome: S.visit.farmName,
+    tlm: farmData.tlm_gerente||'',
+    email: farmData.email_gerente||'',
+  };
+  const farmForFlyer = {
+    id: S.visit.farmId,
+    nome: S.visit.farmName,
+    tlm: farmData.tlm_gerente||'',
+    email: farmData.email_gerente||'',
+  };
+
+  S.visit=null;
+  S.toggles={};
+
+  // Sequence: save → proforma (if Sim) → flyer (if Sim) → home
+  if(proforma==='Sim' && enviarFlyer==='Sim') {
+    showToast(`✓ Visita guardada! ${dur} min`);
+    setTimeout(()=>{
+      goScreen('sh'); initHome();
+      setTimeout(()=>{
+        goScreen('spd'); loadPedidoScreen(farmForPd);
+        // Pass farmForFlyer via state so sendPedido can hand it to the flyer screen
+        S._afterPedido = (farm)=>{ goScreen('sfl'); loadFlyerScreenWithFarm(farm||farmForFlyer); };
+        S._afterPedidoFarm = farmForFlyer;
+      },300);
+    },600);
+  } else if(proforma==='Sim') {
+    showToast(`✓ Visita guardada! ${dur} min`);
+    setTimeout(()=>{
+      goScreen('sh'); initHome();
+      setTimeout(()=>{ goScreen('spd'); loadPedidoScreen(farmForPd); S._afterPedido=null; S._afterPedidoFarm=null; },300);
+    },600);
+  } else if(enviarFlyer==='Sim') {
+    showToast(`✓ Visita guardada! ${dur} min`);
+    setTimeout(()=>{
+      goScreen('sh'); initHome();
+      setTimeout(()=>{ goScreen('sfl'); loadFlyerScreenWithFarm(farmForFlyer); },300);
+    },600);
+  } else {
+    goScreen('sh');
+    initHome();
+    showToast(`✓ Visita guardada! ${dur} min`);
+  }
+}
+
+
+function isManager() {
+  return ((S.delegate?.admin || '').toString().toLowerCase() === 'sim');
+}
+
+function setMapFilter(f) {
+  S.mapFilter = f;
+  ['TODAS','ATIVA','FECHADA'].forEach(x=>{
+    const b=document.getElementById('mf-'+x);
+    if(b) b.classList.toggle('active', x===f);
+  });
+  renderMap();
+}
+
+async function setFarmStatus(id, estado) {
+  if(!isManager()) return;
+  try {
+    await apiPost('updateFarmStatus', {id, estado});
+    const f = S.farms.find(x=>x.ID===id);
+    if(f) f.estado = estado;
+    showToast('Estado atualizado: '+estado);
+    await loadFarms();
+    renderMap();
+  } catch(e) {
+    showToast('Erro ao atualizar estado','error');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// MAPA
+// ═══════════════════════════════════════════════════
+function initMapa() {
+  if(!window.L) {
+    const lnk=document.createElement('link'); lnk.rel='stylesheet'; lnk.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(lnk);
+    const sc=document.createElement('script'); sc.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    sc.onload=()=>createMap();
+    document.head.appendChild(sc);
+  } else if(!S.map) {
+    createMap();
+  } else {
+    // Already exists — always reload counts fresh and re-render
+    reloadMapCounts();
+  }
+}
+
+function createMap() {
+  S.map=L.map('map').setView([-8.85,13.23],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(S.map);
+  S.mapFilter = isManager() ? 'TODAS' : 'ATIVA';
+  const mf=document.getElementById('map-filter');
+  if(mf) mf.style.display = isManager() ? 'flex' : 'none';
+  setMapFilter(S.mapFilter);
+  reloadMapCounts();
+}
+
+async function reloadMapCounts() {
+  S.visitCounts={};
+  await loadVisitCounts();
+  renderMap();
+  setTimeout(()=>S.map&&S.map.invalidateSize(),300);
+}
+
+function renderMap() {
+  if(!S.map) return;
+  S.mapMarkers.forEach(m=>S.map.removeLayer(m)); S.mapMarkers=[];
+
+  const farmsToShow = isManager()
+    ? S.farms.filter(f => S.mapFilter==='TODAS' || ((f.estado||'ATIVA').toString().toUpperCase()===S.mapFilter))
+    : S.farms.filter(f => ((f.estado||'ATIVA').toString().toUpperCase()==='ATIVA'));
+
+  farmsToShow.forEach(f=>{
+    const lat=parseFloat(f.lat||0), lon=parseFloat(f.lon||0);
+    if(!lat||!lon) return;
+    const cnt=S.visitCounts[f.ID]||0;
+    let color, size;
+    if(cnt===0)      { color='#e53e3e'; size=9; }
+    else if(cnt<=2)  { color='#FFC107'; size=11; }
+    else             { color='#38a169'; size=13; }
+
+    const estado=(f.estado||'ATIVA').toString().toUpperCase();
+
+    const icon=L.divIcon({
+      html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.5)"></div>`,
+      className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
+    });
+    const lbl=cnt===0?'Não visitada':`${cnt} visita${cnt>1?'s':''}`;
+    const gestorBtns = isManager() ? `
+      <div style="font-size:11px;color:#777;margin-top:4px">Estado: <b>${estado}</b></div>
+      <div class="farm-status-actions">
+        <button onclick="setFarmStatus('${f.ID}','ATIVA')">Ativa</button>
+        <button onclick="setFarmStatus('${f.ID}','FECHADA')">Fechada</button>
+        <button onclick="setFarmStatus('${f.ID}','APAGAR')" style="color:#e53e3e">Apagar</button>
+      </div>` : '';
+
+    const m=L.marker([lat,lon],{icon}).addTo(S.map)
+      .bindPopup(`<div style="min-width:190px"><b style="font-size:13px">${f.nome}</b><br><span style="font-size:11px;color:#555">${f.local||''}</span><br><span style="font-size:11px;color:${color};font-weight:600">${lbl}</span><br><a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank" style="color:#c8a84b;font-size:12px;font-weight:600">🧭 Navegar</a>${gestorBtns}</div>`);
+    S.mapMarkers.push(m);
+  });
+
+  if(S.gps) {
+    const icon=L.divIcon({html:'<div style="width:14px;height:14px;border-radius:50%;background:#3b82c4;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.5)"></div>',className:'',iconSize:[14,14],iconAnchor:[7,7]});
+    S.mapMarkers.push(L.marker([S.gps.lat,S.gps.lon],{icon}).addTo(S.map).bindPopup('📍 A minha posição'));
+    S.map.setView([S.gps.lat,S.gps.lon],13);
+  }
+  setTimeout(()=>S.map&&S.map.invalidateSize(),200);
+}
+
+function navigateNearest() {
+  if(!S.gps) { showToast('GPS não disponível. Aguarde...','error'); return; }
+
+  // Use live server data — only farms never visited (cnt===0 = vermelho)
+  const candidates = S.farms.filter(f=>{
+    const lat=parseFloat(f.lat||0), lon=parseFloat(f.lon||0);
+    if(!lat||!lon) return false;
+    return (S.visitCounts[f.ID]||0)===0;
+  });
+
+  if(!candidates.length) { showToast('Todas as farmácias já foram visitadas!'); return; }
+
+  let nearest=null, minDist=Infinity;
+  candidates.forEach(f=>{
+    const d=haversine(S.gps.lat,S.gps.lon,parseFloat(f.lat),parseFloat(f.lon));
+    if(d<minDist) { minDist=d; nearest=f; }
+  });
+  if(!nearest) return;
+
+  const dist=Math.round(minDist);
+  const label=dist<1000?`${dist}m`:`${(dist/1000).toFixed(1)}km`;
+
+  S.map.setView([parseFloat(nearest.lat),parseFloat(nearest.lon)],16);
+  const m=S.mapMarkers.find(mk=>{ try{return Math.abs(mk.getLatLng().lat-parseFloat(nearest.lat))<0.0001;}catch(e){return false;} });
+  if(m) m.openPopup();
+  showToast(`📍 ${nearest.nome} — ${label}`);
+  setTimeout(()=>{
+    if(confirm(`Navegar para:\n${nearest.nome}\n(${label} de distância)`)) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${nearest.lat},${nearest.lon}`,'_blank');
+    }
+  },400);
+}
+
+// ═══════════════════════════════════════════════════
+// FLYER
+// ═══════════════════════════════════════════════════
+function loadFlyerScreenWithFarm(farm) {
+  loadFlyerScreen();
+  if(!farm) return;
+  S.flyerSelectedFarm=farm;
+  document.getElementById('fl-dest-name').value=farm.nome||'';
+  document.getElementById('fl-dest-id').value=farm.id||'';
+  document.getElementById('fl-tlm').value=farm.tlm||'';
+  document.getElementById('fl-email').value=farm.email||'';
+  checkFlyerReady();
+}
+
+function loadFlyerScreen() {
+  S.flyerSelectedFarm=null; S.flyerSelectedProd=null;
+  document.getElementById('fl-dest-name').value=''; document.getElementById('fl-dest-id').value='';
+  document.getElementById('fl-tlm').value='';
+  document.getElementById('fl-email').value='';
+  document.getElementById('fl-send-btn').disabled=true;
+  S.toggles['flyer-met']='WhatsApp';
+  document.getElementById('fl-wts').classList.add('active'); document.getElementById('fl-eml').classList.remove('active');
+  document.getElementById('fl-msg').value=`Exmos. Drs.,\n\nSegue em anexo o flyer informativo sobre os nossos produtos Paludart. Qualquer questão estamos disponíveis.\n\n📎 Flyer Paludart:\nhttps://drive.google.com/file/d/${CFG.FLYER_DRIVE_ID}/view?usp=sharing\n\nCom os melhores cumprimentos,\nVelvetMed`;
+  renderFlyerProds();
+}
+
+function renderFlyerProds() {
+  const el=document.getElementById('fl-prods');
+  el.innerHTML=CFG.PRODUCTS.map(p=>`
+    <div class="li" id="flp-${p.id}" onclick="selectFlyerProd('${p.id}')" style="border-color:${S.flyerSelectedProd?.id===p.id?'var(--accent)':'var(--card-border)'}">
+      <div class="li-icon farm">💊</div>
+      <div class="li-info"><div class="li-name">${p.name}</div><div class="li-sub">${p.sku}</div></div>
+      <div style="font-size:20px;color:var(--accent2)">${S.flyerSelectedProd?.id===p.id?'✓':''}</div>
+    </div>`).join('');
+}
+
+function selectFlyerProd(id) {
+  const p=CFG.PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  S.flyerSelectedProd=p;
+  renderFlyerProds();
+  checkFlyerReady();
+  showToast(`✓ ${p.name} selecionado`);
+}
+
+function checkFlyerReady() {
+  document.getElementById('fl-send-btn').disabled=!S.flyerSelectedFarm;
+}
+
+function showFlyerDestSearch() {
+  openModal(`<div class="modal-title">Selecionar Farmácia</div>
+    <div class="search-box"><input type="text" placeholder="Pesquisar..." oninput="filterModalFarms(this.value,'flyer')" autofocus></div>
+    <div id="flyer-modal-list" style="max-height:320px;overflow-y:auto">${renderFarmList(S.farms.slice(0,20),'flyer')}</div>`);
+  S._mdata=S.farms;
+}
+
+function filterModalFarms(q,mode) {
+  const data=S._mdata||[];
+  const f=q.length<2?data.slice(0,20):data.filter(d=>(d.nome||'').toLowerCase().includes(q.toLowerCase())).slice(0,20);
+  const el=document.getElementById(`${mode}-modal-list`);
+  if(el) el.innerHTML=renderFarmList(f,mode);
+}
+
+function renderFarmList(list,mode) {
+  return list.map(f=>`<div class="li" onclick="pickFarm('${esc(f.ID)}','${esc(f.nome)}','${esc(f.tlm_gerente||'')}','${esc(f.email_gerente||'')}','${mode}')">
+    <div class="li-info"><div class="li-name">${f.nome}</div><div class="li-sub">${f.local||''}</div></div></div>`).join('');
+}
+
+function pickFarm(id,nome,tlm,email,mode) {
+  if(mode==='flyer') {
+    S.flyerSelectedFarm={id,nome,tlm,email};
+    document.getElementById('fl-dest-name').value=nome;
+    document.getElementById('fl-dest-id').value=id;
+    document.getElementById('fl-tlm').value=tlm||'';
+    document.getElementById('fl-email').value=email||'';
+    checkFlyerReady();
+  } else if(mode==='pd') {
+    S.pdSelectedFarm={id,nome,tlm,email};
+    document.getElementById('pd-farm-name').value=nome;
+    document.getElementById('pd-farm-id').value=id;
+    if(document.getElementById('pd-farm-tlm')) document.getElementById('pd-farm-tlm').value=tlm||'';
+    if(document.getElementById('pd-farm-email')) document.getElementById('pd-farm-email').value=email||'';
+    checkPdReady();
+    renderPdMsg();
+  }
+  closeModal();
+}
+
+function sendFlyer() {
+  const met=S.toggles['flyer-met']||'WhatsApp';
+  if(!S.flyerSelectedFarm) { showToast('Selecione a farmácia','error'); return; }
+
+  const tlm=document.getElementById('fl-tlm').value.trim();
+  const email=document.getElementById('fl-email').value.trim();
+  const msg=document.getElementById('fl-msg').value;
+
+  if(met==='WhatsApp') {
+    let tel=tlm.replace(/\D/g,'');
+    if(tel.startsWith('9')&&tel.length===9) tel='244'+tel;
+    if(!tel) { showToast('Introduza o telemóvel da farmácia','error'); return; }
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank');
+  } else {
+    if(!email) { showToast('Introduza o email da farmácia','error'); return; }
+    window.location.href=`mailto:${email}?subject=Flyer Paludart — VelvetMed&body=${encodeURIComponent(msg)}`;
+  }
+
+  const contactoUsado=met==='WhatsApp'?tlm:email;
+  const now=new Date();
+  saveRecord({type:'flyer',id_delegado:S.delegate.id_delegado,nome_delegado:S.delegate.nome,data:now.toLocaleDateString('pt-PT'),hora:now.toTimeString().slice(0,5),id_destinatario:S.flyerSelectedFarm.id,nome_destinatario:S.flyerSelectedFarm.nome,tipo_destinatario:'Farmacia',id_produto:'P001',nome_produto:'Paludart',metodo:met,contacto_usado:contactoUsado,mensagem_enviada:msg,timestamp:now.toISOString()});
+  const today=new Date().toDateString();
+  const fk=`vm_launch_flyers_${S.delegate.id_delegado}_${today}`;
+  localStorage.setItem(fk,(parseInt(localStorage.getItem(fk)||'0')+1).toString());
+  showToast(`✓ Flyer enviado via ${met}!`);
+  S.flyerSelectedFarm=null;
+  loadFlyerScreen();
+}
+
+// ═══════════════════════════════════════════════════
+// PEDIDO DISTRIBUIDOR
+// ═══════════════════════════════════════════════════
+function loadPedidoScreen(prefillFarm) {
+  S.pdSelectedDists=new Set();
+  S.pdSelectedFarm=prefillFarm||null;
+  document.getElementById('pd-farm-name').value=prefillFarm?.nome||'';
+  document.getElementById('pd-farm-id').value=prefillFarm?.id||'';
+  document.getElementById('pd-farm-tlm').value=prefillFarm?.tlm||'';
+  document.getElementById('pd-farm-email').value=prefillFarm?.email||'';
+  document.getElementById('pd-send-btn').disabled=true;
+  S.toggles['pd-met']='WhatsApp';
+  document.getElementById('pd-wts').classList.add('active');
+  document.getElementById('pd-eml').classList.remove('active');
+  // Render distributors as multi-select checkboxes
+  document.getElementById('pd-dists').innerHTML=S.dists.map(d=>`
+    <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer" id="pdd-wrap-${d.ID}">
+      <input type="checkbox" id="pdd-${d.ID}" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0" onchange="onDistChange()">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500;color:#fff">${d.nome}</div>
+        <div style="font-size:11px;color:var(--grey)">${d.tlm?'📱 '+d.tlm:''}${d.email?' · 📧 '+d.email:''}</div>
+      </div>
+    </label>`).join('');
+  // Render products with quantity inputs
+  document.getElementById('pd-prods').innerHTML=CFG.PRODUCTS.map(p=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);margin-bottom:8px">
+      <input type="checkbox" id="pdp-${p.id}" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0" onchange="checkPdReady();renderPdMsg()">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:#fff">${p.name}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <button onclick="adjQty('${p.id}',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--card-border);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center">−</button>
+        <input type="number" id="qty-${p.id}" value="1" min="1" max="9999" style="width:50px;text-align:center;background:var(--card);border:1px solid var(--card-border);border-radius:6px;color:#fff;font-size:14px;padding:4px" oninput="renderPdMsg()">
+        <button onclick="adjQty('${p.id}',1)" style="width:28px;height:28px;border-radius:50%;background:var(--card-border);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center">+</button>
+      </div>
+    </div>`).join('');
+  renderPdMsg();
+}
+
+function adjQty(id, delta) {
+  const el=document.getElementById('qty-'+id);
+  if(!el) return;
+  el.value=Math.max(1,parseInt(el.value||'1')+delta);
+  renderPdMsg();
+}
+
+function onDistChange() {
+  S.pdSelectedDists=new Set([...document.querySelectorAll('[id^="pdd-"]:checked')].map(cb=>cb.id.replace('pdd-','')));
+  // Highlight selected
+  S.dists.forEach(d=>{
+    const wrap=document.getElementById('pdd-wrap-'+d.ID);
+    if(wrap) wrap.style.borderColor=S.pdSelectedDists.has(d.ID)?'var(--accent)':'var(--card-border)';
+  });
+  checkPdReady();
+  renderPdMsg();
+}
+
+function checkPdReady() {
+  S.pdSelectedDists=S.pdSelectedDists||new Set([...document.querySelectorAll('[id^="pdd-"]:checked')].map(cb=>cb.id.replace('pdd-','')));
+  const prodsChecked=[...document.querySelectorAll('[id^="pdp-"]:checked')].length>0;
+  const ready=S.pdSelectedDists.size>0&&S.pdSelectedFarm&&prodsChecked;
+  document.getElementById('pd-send-btn').disabled=!ready;
+}
+
+function renderPdMsg() {
+  const dists=[...( S.pdSelectedDists||new Set())].map(id=>S.dists.find(d=>d.ID===id)?.nome).filter(Boolean);
+  const distStr=dists.length?dists.join(', '):'[Distribuidor]';
+  const farm=S.pdSelectedFarm?.nome||'[Farmácia]';
+  const farmTlm=document.getElementById('pd-farm-tlm')?.value||'';
+  const farmEmail=document.getElementById('pd-farm-email')?.value||'';
+  const prodLines=CFG.PRODUCTS
+    .filter(p=>{ const el=document.getElementById('pdp-'+p.id); return el&&el.checked; })
+    .map(p=>{ const qty=document.getElementById('qty-'+p.id)?.value||'1'; return `  • ${p.name} — Qtd: ${qty}`; });
+  const prodsStr=prodLines.length?prodLines.join('\n'):'[Selecione produtos]';
+  const contactStr=farmTlm||farmEmail?`\nContacto da Farmácia:${farmTlm?' 📱 '+farmTlm:''}${farmEmail?' 📧 '+farmEmail:''}`:'';
+  document.getElementById('pd-msg').value=`Exmo. Sr./Sra.,\n\nSomos representantes da VelvetMed e gostaríamos de solicitar proposta/proforma para fornecimento de produtos à:\n\nFarmácia: ${farm}${contactStr}\n\nProdutos:\n${prodsStr}\n\nPedimos que nos envie proposta com preços, condições e prazos de entrega.\n\nCom os melhores cumprimentos,\n${S.delegate?.nome||'Delegado VelvetMed'}\nVelvetMed`;
+}
+
+function showPdFarmSearch() {
+  openModal(`<div class="modal-title">Selecionar Farmácia</div>
+    <div class="search-box"><input type="text" placeholder="Pesquisar..." oninput="filterModalFarms(this.value,'pd')" autofocus></div>
+    <div id="pd-modal-list" style="max-height:320px;overflow-y:auto">${renderFarmList(S.farms.slice(0,20),'pd')}</div>`);
+  S._mdata=S.farms;
+}
+
+function sendPedido() {
+  S.pdSelectedDists=S.pdSelectedDists||new Set([...document.querySelectorAll('[id^="pdd-"]:checked')].map(cb=>cb.id.replace('pdd-','')));
+  const met=S.toggles['pd-met']||'WhatsApp';
+  const msg=document.getElementById('pd-msg').value;
+  const selectedDists=[...S.pdSelectedDists].map(id=>S.dists.find(d=>d.ID===id)).filter(Boolean);
+  if(!selectedDists.length||!S.pdSelectedFarm) { showToast('Selecione distribuidor e farmácia','error'); return; }
+  const prodsChecked=[...document.querySelectorAll('[id^="pdp-"]:checked')].length>0;
+  if(!prodsChecked) { showToast('Selecione pelo menos um produto','error'); return; }
+
+  const prods=CFG.PRODUCTS
+    .filter(p=>{ const el=document.getElementById('pdp-'+p.id); return el&&el.checked; })
+    .map(p=>{ const qty=document.getElementById('qty-'+p.id)?.value||'1'; return p.name+' ('+qty+')'; })
+    .join(', ');
+
+  const now=new Date();
+  const cb=S._afterPedido;
+  const farmSnapshot=S._afterPedidoFarm;
+  S._afterPedido=null; S._afterPedidoFarm=null;
+
+  // Only send to FIRST selected distributor directly (browser allows window.open on click)
+  // If multiple selected, user must repeat for each — popup blocker prevents multiple opens
+  const dist=selectedDists[0];
+  const contacto=met==='WhatsApp'?dist.tlm:dist.email;
+
+  if(!contacto) {
+    showToast(`Sem ${met==='WhatsApp'?'telemóvel':'email'} para ${dist.nome}`,'error');
+    return;
+  }
+
+  // Save record for all selected dists
+  selectedDists.forEach(d=>{
+    const c=met==='WhatsApp'?d.tlm:d.email;
+    saveRecord({type:'pedido_dist',id_delegado:S.delegate.id_delegado,nome_delegado:S.delegate.nome,data:now.toLocaleDateString('pt-PT'),hora:now.toTimeString().slice(0,5),id_distribuidor:d.ID,nome_distribuidor:d.nome,id_farmacia:S.pdSelectedFarm.id,nome_farmacia:S.pdSelectedFarm.nome,produtos:prods,metodo:met,contacto_usado:c||'',mensagem_enviada:msg,timestamp:now.toISOString()});
+  });
+
+  // Open WhatsApp/email for first dist directly (same as sendFlyer)
+  if(met==='WhatsApp') {
+    let tel=String(contacto||'').replace(/\D/g,'');
+
+    // WhatsApp exige formato internacional.
+    // Se vier da sheet só com 9 dígitos de Angola, acrescenta 244.
+    if(tel.length===9 && tel.startsWith('9')) tel='244'+tel;
+
+    if(!tel || tel.length < 12) {
+      showToast(`Número inválido para ${dist.nome}: ${contacto}`,'error');
+      return;
+    }
+
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank');
+  } else {
+    window.location.href=`mailto:${contacto}?subject=Pedido de Proposta VelvetMed&body=${encodeURIComponent(msg)}`;
+  }
+
+  const extra=selectedDists.slice(1).filter(d=>met==='WhatsApp'?d.tlm:d.email);
+  if(extra.length) showToast(`✓ Enviado a ${dist.nome}. Repita para os restantes ${extra.length}.`);
+  else showToast(`✓ Pedido enviado a ${dist.nome}!`);
+
+  loadPedidoScreen();
+  if(cb) setTimeout(()=>cb(farmSnapshot), 600);
+}
+
+// ═══════════════════════════════════════════════════
+// HISTÓRICO
+// ═══════════════════════════════════════════════════
+async function loadHist() {
+  const el=document.getElementById('hist-list');
+  el.innerHTML='<div class="loading"><div class="spinner"></div><span>A carregar...</span></div>';
+  try {
+    const r=await apiGet('getData',{type:'historico_farm',id_delegado:S.delegate.id_delegado});
+    const data=r?.data||[];
+    if(!data.length) { el.innerHTML='<div class="empty"><div class="emoji">📋</div>Sem visitas recentes</div>'; return; }
+    el.innerHTML=data.map(v=>`<div class="card" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="font-size:13px;font-weight:600;color:#fff;flex:1">${v.Nome_Farmacia||v.nome_farmacia||''}</div>
+        <div style="font-size:10px;color:var(--grey);flex-shrink:0;margin-left:8px">${v.Data||v.data||''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--grey);margin-top:4px">${v.Hora_Checkin||''} → ${v.Hora_Checkout||''} ${v.Duracao_Minutos?'· '+v.Duracao_Minutos+' min':''}</div>
+      ${v.Produtos_Apresentados||v.produtos_apresentados?`<div style="font-size:11px;color:var(--accent2);margin-top:4px">💊 ${v.Produtos_Apresentados||v.produtos_apresentados}</div>`:''}
+      ${v.Pessoa_Entrevistada||v.pessoa_entrevistada?`<div style="font-size:11px;color:var(--teal2);margin-top:2px">👤 ${v.Pessoa_Entrevistada||v.pessoa_entrevistada}</div>`:''}
+    </div>`).join('');
+  } catch(e) {
+    el.innerHTML='<div class="empty"><div class="emoji">⚠️</div>Erro ao carregar histórico</div>';
+  }
+}
+
+async function loadFlyerHist() {
+  const el=document.getElementById('flhist-list');
+  el.innerHTML='<div class="loading"><div class="spinner"></div><span>A carregar...</span></div>';
+  try {
+    const r=await apiGet('getData',{type:'flyers_enviados',id_delegado:S.delegate.id_delegado});
+    const data=r?.data||[];
+    if(!data.length) { el.innerHTML='<div class="empty"><div class="emoji">📄</div>Sem flyers enviados</div>'; return; }
+    el.innerHTML=data.map(f=>`<div class="card" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between">
+        <div style="font-size:13px;font-weight:600;color:#fff">${f.Nome_Destinatario||f.nome_destinatario||''}</div>
+        <div style="font-size:10px;color:var(--grey)">${f.Data||f.data||''} ${f.Hora||f.hora||''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--accent2);margin-top:4px">💊 ${f.Nome_Produto||f.nome_produto||''}</div>
+      <div style="font-size:11px;color:var(--grey);margin-top:2px">📱 ${f.Metodo||f.metodo||''} · ${f.Contacto_Usado||f.contacto_usado||''}</div>
+    </div>`).join('');
+  } catch(e) {
+    el.innerHTML='<div class="empty"><div class="emoji">⚠️</div>Erro ao carregar</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// REGISTAR FARMÁCIA
+// ═══════════════════════════════════════════════════
+function initRegFarm() {
+  // Clear form
+  ['rf-nome','rf-local','rf-gerente','rf-tlm-gerente','rf-email-gerente','rf-resp-compras','rf-tlm-compras','rf-email-compras','rf-notas'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  // Start GPS display
+  const update=()=>{
+    const el=document.getElementById('rf-gps-val');
+    if(!el) return;
+    if(S.gps) {
+      el.className='gps-badge ok';
+      el.innerHTML=`<span class="dot"></span>${S.gps.lat.toFixed(5)}, ${S.gps.lon.toFixed(5)}`;
+      document.getElementById('rf-gps-box').className='ci-box on';
+    }
+  };
+  update();
+  if(!S.gps) { const t=setInterval(()=>{ if(S.gps||S.screen!=='srf'){clearInterval(t);} update(); },1000); }
+}
+
+async function saveNovaFarmacia() {
+  const nome=(document.getElementById('rf-nome')?.value||'').trim().toUpperCase();
+  const local=(document.getElementById('rf-local')?.value||'').trim();
+  if(!nome||!local) { showToast('Nome e local são obrigatórios','error'); return; }
+
+  const rec = {
+    type:'nova_farmacia',
+    nome,
+    local,
+    lat: S.gps?.lat||'',
+    lon: S.gps?.lon||'',
+    coordenadas: S.gps?`${S.gps.lat}, ${S.gps.lon}`:'',
+    nome_gerente: document.getElementById('rf-gerente')?.value||'',
+    tlm_gerente: document.getElementById('rf-tlm-gerente')?.value||'',
+    email_gerente: document.getElementById('rf-email-gerente')?.value||'',
+    resp_compras: document.getElementById('rf-resp-compras')?.value||'',
+    tlm_compras: document.getElementById('rf-tlm-compras')?.value||'',
+    email_compras: document.getElementById('rf-email-compras')?.value||'',
+    notas: document.getElementById('rf-notas')?.value||'',
+    id_delegado: S.delegate.id_delegado,
+    nome_delegado: S.delegate.nome,
+    timestamp: new Date().toISOString(),
+  };
+
+  saveRecord(rec);
+  showToast(`✓ ${nome} guardada!`);
+  // Force refresh farm list from server
+  S.farms=[];
+  localStorage.removeItem(CFG.FARMS_KEY);
+  await loadFarms();
+  goBack();
+}
+// ═══════════════════════════════════════════════════
+function getQueue() { try { return JSON.parse(localStorage.getItem(CFG.OFFLINE_KEY)||'[]'); } catch(e) { return []; } }
+function addToQueue(r) { const q=getQueue(); q.push(r); localStorage.setItem(CFG.OFFLINE_KEY,JSON.stringify(q)); }
+
+function saveRecord(r) {
+  addToQueue(r); updateSyncBar(); updateStats();
+  if(S.isOnline) syncQueue();
+}
+
+async function syncQueue() {
+  const q=getQueue();
+  if(!q.length||S.isSyncing) return;
+  S.isSyncing=true; updateSyncBar();
+  const failed=[];
+  for(const rec of q) {
+    try { await apiPost('saveRecord',rec); } catch(e) { failed.push(rec); }
+  }
+  localStorage.setItem(CFG.OFFLINE_KEY,JSON.stringify(failed));
+  S.isSyncing=false; updateSyncBar(); updateStats();
+  if(!failed.length&&q.length) showToast(`✓ ${q.length} registo(s) sincronizados`);
+}
+
+// ═══════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════
+async function apiGet(action, data={}) {
+  const p=new URLSearchParams({action,...Object.fromEntries(Object.entries(data).filter(([,v])=>v!=null))});
+  const r=await fetch(SCRIPT_URL+'?'+p.toString(),{method:'GET',redirect:'follow'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+async function apiPost(action, data={}) {
+  const fd=new URLSearchParams();
+  fd.append('payload',JSON.stringify({action,...data}));
+  const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:fd.toString(),redirect:'follow'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════
+function setT(group, val) {
+  S.toggles[group]=val;
+  if(group==='proforma') { document.getElementById('pf-sim')?.classList.toggle('active',val==='Sim'); document.getElementById('pf-nao')?.classList.toggle('active',val==='Não'); }
+  if(group==='conhece') { document.getElementById('kp-sim')?.classList.toggle('active',val==='Sim'); document.getElementById('kp-nao')?.classList.toggle('active',val==='Não'); }
+  if(group==='enviar_flyer') { document.getElementById('fl-visit-sim')?.classList.toggle('active',val==='Sim'); document.getElementById('fl-visit-nao')?.classList.toggle('active',val==='Não'); }
+  if(group==='flyer-met') {
+    document.getElementById('fl-wts')?.classList.toggle('active',val==='WhatsApp');
+    document.getElementById('fl-eml')?.classList.toggle('active',val==='Email');
+  }
+  if(group==='pd-met') {
+    document.getElementById('pd-wts')?.classList.toggle('active',val==='WhatsApp');
+    document.getElementById('pd-eml')?.classList.toggle('active',val==='Email');
+    renderPdMsg();
+  }
+}
+
+function goScreen(id) {
+  const cur=document.getElementById(S.screen);
+  const nxt=document.getElementById(id);
+  if(!nxt) return;
+  if(cur&&S.screen!==id) { S.history.push(S.screen); cur.classList.add('hidden'); }
+  nxt.classList.remove('hidden');
+  S.screen=id;
+  if(id==='svs') setTimeout(()=>filterFarms(),100);
+  if(id==='sm'&&S.map) { setTimeout(()=>{ S.map.invalidateSize(); reloadMapCounts(); },300); }
+}
+
+function goBack() {
+  if(!S.history.length) return;
+  const prev=S.history.pop();
+  document.getElementById(S.screen)?.classList.add('hidden');
+  document.getElementById(prev)?.classList.remove('hidden');
+  S.screen=prev;
+  if(prev==='sh') { updateStats(); updateSyncBar(); checkVisitBanner(); }
+}
+
+function openModal(html) { document.getElementById('mbody').innerHTML=html; document.getElementById('mov').classList.remove('hidden'); }
+function closeModal() { document.getElementById('mov').classList.add('hidden'); }
+
+let _tTimer;
+function showToast(msg,type='success') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`show ${type}`;
+  clearTimeout(_tTimer); _tTimer=setTimeout(()=>t.className='',3000);
+}
+
+function esc(s) { return s?s.toString().replace(/'/g,"\\'"):''; }
+
+function getWeekNumber() {
+  const d=new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+4-(d.getDay()||7));
+  const y=d.getFullYear();
+  const w=Math.ceil(((d-new Date(y,0,1))/86400000+1)/7);
+  return `${y}-W${w}`;
+}
+
+// ═══════════════════════════════════════════════════
+// UPDATE APP
+// ═══════════════════════════════════════════════════
+async function atualizarApp() {
+  const btn=document.querySelector('[onclick="atualizarApp()"]');
+  if(btn) { btn.textContent='⏳ A atualizar...'; btn.disabled=true; }
+  const keep=[CFG.SESSION_KEY, CFG.PIN_ATTEMPTS, 'vm_launch_delegates'];
+  Object.keys(localStorage).forEach(k=>{ if(!keep.includes(k)) localStorage.removeItem(k); });
+  if('caches' in window) { const names=await caches.keys(); await Promise.all(names.map(n=>caches.delete(n))); }
+  if('serviceWorker' in navigator) { const regs=await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r=>r.unregister())); }
+  showToast('✓ Cache limpa! A recarregar...','success');
+  setTimeout(()=>window.location.reload(true),1200);
+}
+
+// SW
+if('serviceWorker' in navigator) {
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
