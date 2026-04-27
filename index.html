@@ -1516,36 +1516,32 @@ async function loadHist() {
 
  el.innerHTML=data.map(v=>{
 
- function formatHora(h) {
-  if(!h) return '';
+  function formatHora(h) {
+    if(!h) return '';
 
-  // Caso 1: já vem tipo "5:31"
-  if(typeof h === 'string' && h.includes(':') && !h.includes('T')) return h;
+    if(typeof h === 'string' && h.includes(':') && !h.includes('T')) return h;
 
-  // Caso 2: número (formato Excel / Sheets)
-  if(typeof h === 'number') {
-    const totalMin = Math.round(h * 24 * 60);
-    const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
-    const mm = String(totalMin % 60).padStart(2,'0');
-    return `${hh}:${mm}`;
-  }
-
-  // Caso 3: ISO tipo 1899
-  if(typeof h === 'string' && h.includes('T')) {
-    const match = h.match(/T(\d{2}):(\d{2})/);
-    if(match) return `${match[1]}:${match[2]}`;
-  }
-
-  // fallback
-  try {
-    const d = new Date(h);
-    if(!isNaN(d)) {
-      return d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+    if(typeof h === 'number') {
+      const totalMin = Math.round(h * 24 * 60);
+      const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
+      const mm = String(totalMin % 60).padStart(2,'0');
+      return `${hh}:${mm}`;
     }
-  } catch(e) {}
 
-  return h;
-}
+    if(typeof h === 'string' && h.includes('T')) {
+      const match = h.match(/T(\d{2}):(\d{2})/);
+      if(match) return `${match[1]}:${match[2]}`;
+    }
+
+    try {
+      const d = new Date(h);
+      if(!isNaN(d)) {
+        return d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+      }
+    } catch(e) {}
+
+    return h;
+  }
 
   const nome = v.Nome_Farmacia||v.nome_farmacia||'';
   const dataVisita = v.Data||v.data||'';
@@ -1581,6 +1577,11 @@ async function loadHist() {
 
   </div>`;
 }).join('');
+
+  } catch(e) {
+    el.innerHTML='<div class="empty"><div class="emoji">⚠️</div>Erro ao carregar histórico</div>';
+  }
+}
 
 async function loadFlyerHist() {
   const el=document.getElementById('flhist-list');
