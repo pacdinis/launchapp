@@ -1504,24 +1504,56 @@ function sendPedido() {
 async function loadHist() {
   const el=document.getElementById('hist-list');
   el.innerHTML='<div class="loading"><div class="spinner"></div><span>A carregar...</span></div>';
+  
   try {
     const r=await apiGet('getData',{type:'historico_farm',id_delegado:S.delegate.id_delegado});
     const data=r?.data||[];
-    if(!data.length) { el.innerHTML='<div class="empty"><div class="emoji">📋</div>Sem visitas recentes</div>'; return; }
-    el.innerHTML=data.map(v=>`<div class="card" style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div style="font-size:13px;font-weight:600;color:#fff;flex:1">${v.Nome_Farmacia||v.nome_farmacia||''}</div>
-        <div style="font-size:10px;color:var(--grey);flex-shrink:0;margin-left:8px">${v.Data||v.data||''}</div>
-      </div>
-      <div style="font-size:11px;color:var(--grey);margin-top:4px">${v.Hora_Checkin||''} → ${v.Hora_Checkout||''} ${v.Duracao_Minutos?'· '+v.Duracao_Minutos+' min':''}</div>
-      ${v.Produtos_Apresentados||v.produtos_apresentados?`<div style="font-size:11px;color:var(--accent2);margin-top:4px">💊 ${v.Produtos_Apresentados||v.produtos_apresentados}</div>`:''}
-      ${v.Pessoa_Entrevistada||v.pessoa_entrevistada?`<div style="font-size:11px;color:var(--teal2);margin-top:2px">👤 ${v.Pessoa_Entrevistada||v.pessoa_entrevistada}</div>`:''}
-    </div>`).join('');
+    
+    if(!data.length) {
+      el.innerHTML='<div class="empty"><div class="emoji">📋</div>Sem visitas recentes</div>';
+      return;
+    }
+
+    el.innerHTML=data.map(v=>{
+      const nome = v.Nome_Farmacia||v.nome_farmacia||'';
+      const dataVisita = v.Data||v.data||'';
+      const checkin = v.Hora_Checkin||'';
+      const checkout = v.Hora_Checkout||'';
+      const dur = v.Duracao_Minutos ? `· ${v.Duracao_Minutos} min` : '';
+
+      const pessoa = v.Pessoa_Entrevistada||'';
+      const cargo = v.Cargo||'';
+      const dists = v.Distribuidores_Preferenciais||'';
+      const adquirir = v.Vai_Adquirir || '';
+      const notas = v.Notas||'';
+
+      return `
+      <div class="card" style="margin-bottom:8px">
+        
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="font-size:13px;font-weight:600;color:#fff;flex:1">${nome}</div>
+          <div style="font-size:10px;color:var(--grey);flex-shrink:0;margin-left:8px">${dataVisita}</div>
+        </div>
+
+        <div style="font-size:11px;color:var(--grey);margin-top:4px">
+          ${checkin} → ${checkout} ${dur}
+        </div>
+
+        ${pessoa ? `<div style="font-size:11px;color:var(--teal2);margin-top:4px">👤 ${pessoa} ${cargo ? `· ${cargo}`:''}</div>` : ''}
+
+        ${dists ? `<div style="font-size:11px;color:var(--accent2);margin-top:2px">📦 ${dists}</div>` : ''}
+
+        ${adquirir ? `<div style="font-size:11px;color:#68d391;margin-top:2px">💰 Vai adquirir: ${adquirir}</div>` : ''}
+
+        ${notas ? `<div style="font-size:11px;color:var(--grey2);margin-top:4px">📝 ${notas}</div>` : ''}
+
+      </div>`;
+    }).join('');
+
   } catch(e) {
     el.innerHTML='<div class="empty"><div class="emoji">⚠️</div>Erro ao carregar histórico</div>';
   }
 }
-
 async function loadFlyerHist() {
   const el=document.getElementById('flhist-list');
   el.innerHTML='<div class="loading"><div class="spinner"></div><span>A carregar...</span></div>';
