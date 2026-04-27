@@ -1514,36 +1514,21 @@ async function loadHist() {
       return;
     }
 
-  function formatHora(h) {
-  if(h === '' || h === null || h === undefined) return '';
+function formatHora(h) {
+  if (h === null || h === undefined) return '';
 
-  // ✅ Se já vem como string tipo 7:23 ou 07:23 → usa direto
-  if(typeof h === 'string' && h.includes(':')) {
-    const parts = h.split(':');
-    if(parts.length >= 2) {
-      const hh = parts[0].padStart(2,'0');
-      const mm = parts[1].padStart(2,'0');
-      return `${hh}:${mm}`;
-    }
-  }
+  const s = String(h).trim();
+  if (!s) return '';
 
-  // ✅ Se vier como Date
-  if(h instanceof Date) {
-    return h.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
-  }
-
-  // ✅ Se vier como número Excel
-  const num = Number(h);
-  if(!isNaN(num)) {
-    const frac = num % 1;
-    const totalMin = Math.round(frac * 24 * 60);
-    const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
-    const mm = String(totalMin % 60).padStart(2,'0');
-    return `${hh}:${mm}`;
+  // Aceita só HH:mm ou H:mm
+  if (/^\d{1,2}:\d{2}$/.test(s)) {
+    const [hh, mm] = s.split(':');
+    return hh.padStart(2, '0') + ':' + mm;
   }
 
   return '';
-} 
+}
+
 el.innerHTML = data.map(v => {
       const nome = v.Nome_Farmacia||v.nome_farmacia||'';
       const dataVisita = v.Data||v.data||'';
