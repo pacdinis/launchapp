@@ -1515,25 +1515,30 @@ async function loadHist() {
     }
 
     function formatHora(h) {
-      if(!h) return '';
+  if(h === '' || h === null || h === undefined) return '';
 
-      if(typeof h === 'string' && h.includes(':') && !h.includes('T')) return h;
+  // Caso Excel / Sheets (ex: 6.37)
+  const num = parseFloat(h);
+  if(!isNaN(num)) {
+    const totalMin = Math.round(num * 24 * 60);
+    const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
+    const mm = String(totalMin % 60).padStart(2,'0');
+    return `${hh}:${mm}`;
+  }
 
-      if(typeof h === 'number') {
-        const totalMin = Math.round(h * 24 * 60);
-        const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
-        const mm = String(totalMin % 60).padStart(2,'0');
-        return `${hh}:${mm}`;
-      }
+  // Caso string já tipo "06:37"
+  if(typeof h === 'string' && h.includes(':') && !h.includes('T')) {
+    return h;
+  }
 
-      if(typeof h === 'string' && h.includes('T')) {
-        const match = h.match(/T(\d{2}):(\d{2})/);
-        if(match) return `${match[1]}:${match[2]}`;
-      }
+  // Caso ISO (1899 etc)
+  if(typeof h === 'string' && h.includes('T')) {
+    const match = h.match(/T(\d{2}):(\d{2})/);
+    if(match) return `${match[1]}:${match[2]}`;
+  }
 
-      return '';
-    }
-
+  return '';
+}
     el.innerHTML = data.map(v => {
       const nome = v.Nome_Farmacia||v.nome_farmacia||'';
       const dataVisita = v.Data||v.data||'';
