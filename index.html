@@ -1514,32 +1514,40 @@ async function loadHist() {
       return;
     }
 
-    function formatHora(h) {
+   function formatHora(h) {
   if(h === '' || h === null || h === undefined) return '';
 
-  // Caso Excel / Sheets (ex: 6.37)
-  const num = parseFloat(h);
+  // Se já vem bem formatado
+  if(typeof h === 'string' && /^\d{2}:\d{2}/.test(h)) {
+    return h.substring(0,5);
+  }
+
+  // Caso venha como Date (Apps Script às vezes manda assim)
+  if(Object.prototype.toString.call(h) === '[object Date]') {
+    return h.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  // Caso venha como número Excel (fração do dia)
+  const num = Number(h);
   if(!isNaN(num)) {
-    const totalMin = Math.round(num * 24 * 60);
+    const frac = num % 1; // 👈 CRÍTICO (ignorar parte inteira)
+    const totalMin = Math.round(frac * 24 * 60);
     const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
     const mm = String(totalMin % 60).padStart(2,'0');
     return `${hh}:${mm}`;
   }
 
-  // Caso string já tipo "06:37"
-  if(typeof h === 'string' && h.includes(':') && !h.includes('T')) {
-    return h;
-  }
-
-  // Caso ISO (1899 etc)
+  // Caso ISO string
   if(typeof h === 'string' && h.includes('T')) {
-    const match = h.match(/T(\d{2}):(\d{2})/);
-    if(match) return `${match[1]}:${match[2]}`;
+    const d = new Date(h);
+    if(!isNaN(d)) {
+      return d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+    }
   }
 
   return '';
-}
-    el.innerHTML = data.map(v => {
+} 
+el.innerHTML = data.map(v => {
       const nome = v.Nome_Farmacia||v.nome_farmacia||'';
       const dataVisita = v.Data||v.data||'';
       const checkin = formatHora(v.Hora_Checkin);
