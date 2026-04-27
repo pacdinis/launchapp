@@ -1502,84 +1502,76 @@ function sendPedido() {
 // HISTÓRICO
 // ═══════════════════════════════════════════════════
 async function loadHist() {
-  const el=document.getElementById('hist-list');
-  el.innerHTML='<div class="loading"><div class="spinner"></div><span>A carregar...</span></div>';
-  
+  const el = document.getElementById('hist-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><span>A carregar...</span></div>';
+
   try {
-    const r=await apiGet('getData',{type:'historico_farm',id_delegado:S.delegate.id_delegado});
-    const data=r?.data||[];
-    
+    const r = await apiGet('getData',{type:'historico_farm',id_delegado:S.delegate.id_delegado});
+    const data = r?.data || [];
+
     if(!data.length) {
-      el.innerHTML='<div class="empty"><div class="emoji">📋</div>Sem visitas recentes</div>';
+      el.innerHTML = '<div class="empty"><div class="emoji">📋</div>Sem visitas recentes</div>';
       return;
     }
 
- el.innerHTML=data.map(v=>{
+    function formatHora(h) {
+      if(!h) return '';
 
-  function formatHora(h) {
-    if(!h) return '';
+      if(typeof h === 'string' && h.includes(':') && !h.includes('T')) return h;
 
-    if(typeof h === 'string' && h.includes(':') && !h.includes('T')) return h;
-
-    if(typeof h === 'number') {
-      const totalMin = Math.round(h * 24 * 60);
-      const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
-      const mm = String(totalMin % 60).padStart(2,'0');
-      return `${hh}:${mm}`;
-    }
-
-    if(typeof h === 'string' && h.includes('T')) {
-      const match = h.match(/T(\d{2}):(\d{2})/);
-      if(match) return `${match[1]}:${match[2]}`;
-    }
-
-    try {
-      const d = new Date(h);
-      if(!isNaN(d)) {
-        return d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+      if(typeof h === 'number') {
+        const totalMin = Math.round(h * 24 * 60);
+        const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
+        const mm = String(totalMin % 60).padStart(2,'0');
+        return `${hh}:${mm}`;
       }
-    } catch(e) {}
 
-    return h;
-  }
+      if(typeof h === 'string' && h.includes('T')) {
+        const match = h.match(/T(\d{2}):(\d{2})/);
+        if(match) return `${match[1]}:${match[2]}`;
+      }
 
-  const nome = v.Nome_Farmacia||v.nome_farmacia||'';
-  const dataVisita = v.Data||v.data||'';
-  const checkin = formatHora(v.Hora_Checkin);
-  const checkout = formatHora(v.Hora_Checkout);
-  const dur = v.Duracao_Minutos ? `· ${v.Duracao_Minutos} min` : '';
+      return '';
+    }
 
-  const pessoa = v.Pessoa_Entrevistada||'';
-  const cargo = v.Cargo||'';
-  const dists = v.Distribuidores_Preferenciais||'';
-  const adquirir = v.Vai_Adquirir || '';
-  const notas = v.Notas||'';
+    el.innerHTML = data.map(v => {
+      const nome = v.Nome_Farmacia||v.nome_farmacia||'';
+      const dataVisita = v.Data||v.data||'';
+      const checkin = formatHora(v.Hora_Checkin);
+      const checkout = formatHora(v.Hora_Checkout);
+      const dur = v.Duracao_Minutos ? `· ${v.Duracao_Minutos} min` : '';
 
-  return `
-  <div class="card" style="margin-bottom:8px">
-    
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div style="font-size:13px;font-weight:600;color:#fff;flex:1">${nome}</div>
-      <div style="font-size:10px;color:var(--grey);flex-shrink:0;margin-left:8px">${dataVisita}</div>
-    </div>
+      const pessoa = v.Pessoa_Entrevistada||'';
+      const cargo = v.Cargo||'';
+      const dists = v.Distribuidores_Preferenciais||'';
+      const adquirir = v.Vai_Adquirir || '';
+      const notas = v.Notas||'';
 
-    <div style="font-size:11px;color:var(--grey);margin-top:4px">
-      ${checkin} → ${checkout} ${dur}
-    </div>
+      return `
+      <div class="card" style="margin-bottom:8px">
+        
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="font-size:13px;font-weight:600;color:#fff;flex:1">${nome}</div>
+          <div style="font-size:10px;color:var(--grey);flex-shrink:0;margin-left:8px">${dataVisita}</div>
+        </div>
 
-    ${pessoa ? `<div style="font-size:11px;color:var(--teal2);margin-top:4px">👤 ${pessoa} ${cargo ? `· ${cargo}`:''}</div>` : ''}
+        <div style="font-size:11px;color:var(--grey);margin-top:4px">
+          ${checkin} → ${checkout} ${dur}
+        </div>
 
-    ${dists ? `<div style="font-size:11px;color:var(--accent2);margin-top:2px">📦 ${dists}</div>` : ''}
+        ${pessoa ? `<div style="font-size:11px;color:var(--teal2);margin-top:4px">👤 ${pessoa} ${cargo ? `· ${cargo}`:''}</div>` : ''}
 
-    ${adquirir ? `<div style="font-size:11px;color:#68d391;margin-top:2px">💰 Vai adquirir: ${adquirir}</div>` : ''}
+        ${dists ? `<div style="font-size:11px;color:var(--accent2);margin-top:2px">📦 ${dists}</div>` : ''}
 
-    ${notas ? `<div style="font-size:11px;color:var(--grey2);margin-top:4px">📝 ${notas}</div>` : ''}
+        ${adquirir ? `<div style="font-size:11px;color:#68d391;margin-top:2px">💰 Vai adquirir: ${adquirir}</div>` : ''}
 
-  </div>`;
-}).join('');
+        ${notas ? `<div style="font-size:11px;color:var(--grey2);margin-top:4px">📝 ${notas}</div>` : ''}
+
+      </div>`;
+    }).join('');
 
   } catch(e) {
-    el.innerHTML='<div class="empty"><div class="emoji">⚠️</div>Erro ao carregar histórico</div>';
+    el.innerHTML = '<div class="empty"><div class="emoji">⚠️</div>Erro ao carregar histórico</div>';
   }
 }
 
