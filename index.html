@@ -424,7 +424,8 @@ input,select,textarea{font-family:inherit;outline:none;border:none}
     </div>
     <div class="map-legend">
       <span><span class="leg-dot" style="background:#e53e3e"></span>Não visitada</span>
-      <span><span class="leg-dot" style="background:#FFC107"></span>1-2x</span>
+      <span><span class="leg-dot" style="background:#FFC107"></span>1x</span>
+      <span><span class="leg-dot" style="background:#3b82c4"></span>2x</span>
       <span><span class="leg-dot" style="background:#38a169"></span>3+ x</span>
       <span><span class="leg-dot" style="background:#3b82c4"></span>Eu</span>
     </div>
@@ -1170,9 +1171,10 @@ function renderMap() {
     if(!lat||!lon) return;
     const cnt=S.visitCounts[f.ID]||0;
     let color, size;
-    if(cnt===0)      { color='#e53e3e'; size=9; }
-    else if(cnt<=2)  { color='#FFC107'; size=11; }
-    else             { color='#38a169'; size=13; }
+    if(cnt===0)      { color='#e53e3e'; size=9; }      // 0 visitas = vermelho
+    else if(cnt===1)  { color='#FFC107'; size=11; }     // 1 visita = amarelo
+    else if(cnt===2)  { color='#3b82c4'; size=12; }     // 2 visitas = azul
+    else             { color='#38a169'; size=13; }      // 3+ visitas = verde
 
     const estado=(f.estado||'ATIVA').toString().toUpperCase();
 
@@ -1520,11 +1522,15 @@ function formatHora(h) {
   const s = String(h).trim();
   if (!s) return '';
 
-  // Aceita só HH:mm ou H:mm
-  if (/^\d{1,2}:\d{2}$/.test(s)) {
+  // Caso normal vindo do Apps Script: HH:mm ou H:mm
+  if (/^\d{1,2}:\d{2}/.test(s)) {
     const [hh, mm] = s.split(':');
-    return hh.padStart(2, '0') + ':' + mm;
+    return hh.padStart(2, '0') + ':' + String(mm).substring(0,2).padStart(2, '0');
   }
+
+  // Caso venha ISO por qualquer conversão do Sheets
+  const iso = s.match(/T(\d{2}):(\d{2})/);
+  if (iso) return iso[1] + ':' + iso[2];
 
   return '';
 }
